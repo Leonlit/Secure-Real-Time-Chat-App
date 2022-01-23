@@ -1,5 +1,7 @@
 import "package:flutter/material.dart";
 import 'package:secure_real_time_chat_app/services/auth.dart';
+import 'package:secure_real_time_chat_app/widgets/widget.dart';
+
 
 class SignIn extends StatefulWidget {
   @override
@@ -8,49 +10,61 @@ class SignIn extends StatefulWidget {
 
 class _SignInState extends State<SignIn> {
 
-  static const Color THEME_COLOR = Color.fromRGBO(124, 32, 191, 1.0);
-  static const Color BACKGROUND_COLOR = Color.fromRGBO(40, 39, 39, 1.0);
 
   final AuthService _auth = AuthService();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: BACKGROUND_COLOR,
-      appBar: AppBar(
-        backgroundColor: THEME_COLOR,
-        elevation: 0.0,
-        title: const Text("Sign in to se-chat"),
-      ),
-      body: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
-        child: Column(
-          children: [
-            const TextField(
-              decoration: InputDecoration(
-                hintText: "email",
-                hintStyle: TextStyle(
-                  color: Colors.white54
-                )
-              ),
+      appBar: appBar(),
+      body: SingleChildScrollView(
+        child: Container(
+          height: MediaQuery.of(context).size.height - 100,
+          alignment: Alignment.bottomCenter,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 50.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  decoration: textFieldInputDecoration("email"),
+                  style: simpleTextStyle(),
+                ),
+                TextField(
+                  decoration: textFieldInputDecoration("password"),
+                  style: simpleTextStyle(),
+                ),
+                SizedBox(height: 20,),
+                Container(
+                  alignment: Alignment.center,
+                  width: MediaQuery.of(context).size.width,
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color(0xFF7C20BF),
+                        Color(0x7C6E20FF)
+                      ]
+                    ),
+                    borderRadius: BorderRadius.circular(25)
+                  ), 
+                  child: Text("Sign In", style: biggerTextStyle()),
+                ),
+                SizedBox(height: 20,),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("Don't have an account? ", style: simpleTextStyle(),),
+                    const Text("Register now", style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 17,
+                      decoration: TextDecoration.underline,
+                    ),),
+                  ],
+                ),
+                SizedBox(height: 50,),
+              ]
             ),
-            const TextField(
-              decoration: InputDecoration(
-                  hintText: "password"
-              ),
-            ),
-            ElevatedButton(
-              child: const Text("Sign In Anon"),
-              onPressed: () async {
-                dynamic login = await _auth.signInAnon();
-                if (login == null) {
-                  print("Error signing in!");
-                }else {
-                  print("signed in!");
-                  print(login);
-                }
-              },
-            ),
-          ]
+          ),
         ),
       ),
     );
