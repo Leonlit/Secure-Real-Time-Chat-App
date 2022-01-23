@@ -1,8 +1,8 @@
 class AppUser {
-  dynamic uid = null;
+  String uid = "";
 
-  AppUser(dynamic uid) {
-    if (uid != null) {
+  AppUser(String uid) {
+    if (uid != "") {
       this.uid = uid;
     }
 
