@@ -11,16 +11,33 @@ class SignUp extends StatefulWidget {
 
 class _SignUpState extends State<SignUp> {
 
+  bool isLoading = false;
+  AuthService authService = new AuthService ();
+
   final formKey = GlobalKey<FormState>();
   TextEditingController usernameEditingController = TextEditingController();
   TextEditingController emailEditingController = TextEditingController();
   TextEditingController passwordEditingController = TextEditingController();
 
+  signUpUser () {
+    if (formKey.currentState!.validate()) {
+      setState(() {
+        isLoading = true;
+      });
+      authService.signUpWithEmailAndPassword(emailEditingController.text,
+          passwordEditingController.text).then((val) {
+            print("$val");
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBar(),
-      body: SingleChildScrollView(
+      body: isLoading ? Container(
+        child: const Center(child: CircularProgressIndicator()),
+      ) : SingleChildScrollView(
         child: Container(
           height: MediaQuery.of(context).size.height - 100,
           alignment: Alignment.center,
@@ -37,23 +54,35 @@ class _SignUpState extends State<SignUp> {
                         decoration: textFieldInputDecoration("username"),
                         style: simpleTextStyle(),
                         controller: usernameEditingController,
+                          validator: (val) {
+                            return val!.isEmpty ? "The username cannot be empty" : val!.length < 4 ? "The username is too short" : null;
+                          },
                       ),
                         TextFormField(
                           decoration: textFieldInputDecoration("email"),
                           style: simpleTextStyle(),
                           controller: emailEditingController,
+                          validator: (val){
+                            return RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(val!) ?
+                            null : "Please provide a valid email";
+                          },
                         ),
                         TextFormField(
+                          obscureText: true,
                           decoration: textFieldInputDecoration("password"),
                           style: simpleTextStyle(),
                           controller: passwordEditingController,
+                          validator: (val) {
+                            return val!.length > 6 ? null : "Password is too short. Need more than 6 character";
+                          },
                         ),],
                     ),
                   ),
                   const SizedBox(height: 20),
                   GestureDetector(
                     onTap: () {
-
+                      //todo
+                      signUpUser();
                     },
                     child: Container(
                       alignment: Alignment.center,
