@@ -1,15 +1,21 @@
 import "package:flutter/material.dart";
+import 'package:secure_real_time_chat_app/screens/chat_app/chatRoom.dart';
 import 'package:secure_real_time_chat_app/services/auth.dart';
+import 'package:secure_real_time_chat_app/services/database.dart';
 import 'package:secure_real_time_chat_app/widgets/widget.dart';
 
 class SignUp extends StatefulWidget {
-  const SignUp({Key? key}) : super(key: key);
+
+  final Function toggle;
+  SignUp(this.toggle);
+
 
   @override
   _SignUpState createState() => _SignUpState();
 }
 
 class _SignUpState extends State<SignUp> {
+
 
   bool isLoading = false;
   AuthService authService = new AuthService ();
@@ -19,14 +25,27 @@ class _SignUpState extends State<SignUp> {
   TextEditingController emailEditingController = TextEditingController();
   TextEditingController passwordEditingController = TextEditingController();
 
+  DatabaseMethods databaseMethods = new DatabaseMethods();
+
   signUpUser () {
     if (formKey.currentState!.validate()) {
-      setState(() {
-        isLoading = true;
-      });
+
       authService.signUpWithEmailAndPassword(emailEditingController.text,
           passwordEditingController.text).then((val) {
-            print("$val");
+            //print("${val.uid}");
+        Map<String, String> userInfoMap = {
+          "name": usernameEditingController.text,
+          "email": emailEditingController.text
+        };
+
+        setState(() {
+          isLoading = true;
+        });
+        databaseMethods.uploadUserInfo(userInfoMap);
+
+        Navigator.pushReplacement(context, MaterialPageRoute(
+            builder: (context) => ChatRoom()
+        ));
       });
     }
   }
@@ -81,7 +100,6 @@ class _SignUpState extends State<SignUp> {
                   const SizedBox(height: 20),
                   GestureDetector(
                     onTap: () {
-                      //todo
                       signUpUser();
                     },
                     child: Container(
@@ -105,16 +123,24 @@ class _SignUpState extends State<SignUp> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text("Already have an account? ", style: simpleTextStyle(),),
-                      const Text("Sign in now", style:
-                        TextStyle(
-                          color: Colors.white,
-                          fontSize: 17,
-                          decoration: TextDecoration.underline,
+                      GestureDetector(
+                        onTap: () {
+                          widget.toggle();
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(vertical: 8),
+                          child: const Text("Sign in now", style:
+                            TextStyle(
+                              color: Colors.white,
+                              fontSize: 17,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 50),
+                  const SizedBox(height: 0),
                 ]
             ),
           ),

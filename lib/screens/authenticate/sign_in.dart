@@ -2,8 +2,11 @@ import "package:flutter/material.dart";
 import 'package:secure_real_time_chat_app/services/auth.dart';
 import 'package:secure_real_time_chat_app/widgets/widget.dart';
 
-
 class SignIn extends StatefulWidget {
+
+  final Function toggle;
+  SignIn(this.toggle);
+
   @override
   _SignInState createState() => _SignInState();
 }
@@ -54,14 +57,22 @@ class _SignInState extends State<SignIn> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text("Don't have an account? ", style: simpleTextStyle(),),
-                    const Text("Register now", style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 17,
-                      decoration: TextDecoration.underline,
-                    ),),
+                    GestureDetector(
+                      onTap: () {
+                        widget.toggle();
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 8),
+                        child: const Text("Register now", style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 17,
+                          decoration: TextDecoration.underline,
+                        ),),
+                      ),
+                    ),
                   ],
                 ),
-                SizedBox(height: 50,),
+                SizedBox(height: 0,),
               ]
             ),
           ),

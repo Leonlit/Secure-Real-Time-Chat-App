@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import "package:firebase_core/firebase_core.dart";
-import 'package:secure_real_time_chat_app/screens/wrapper.dart';
+import 'package:secure_real_time_chat_app/helper/authenticate.dart';
 import 'package:secure_real_time_chat_app/helper/theme.dart';
 import 'firebase_options.dart';
 
@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: "Se-Chat",
-      home: Wrapper(),
+      home: Authenticate(),
       theme: ThemeData(
         primaryColor: BACKGROUND_COLOR,
         scaffoldBackgroundColor: BACKGROUND_COLOR,
