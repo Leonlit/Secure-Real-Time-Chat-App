@@ -21,8 +21,6 @@ class _SignInState extends State<SignIn> {
   AuthService authService = new AuthService ();
   DatabaseMethods databaseMethods = new DatabaseMethods();
 
-  QuerySnapshot? querySnapshot;
-
   TextEditingController emailEditingController = TextEditingController();
   TextEditingController passwordEditingController = TextEditingController();
 
@@ -31,27 +29,28 @@ class _SignInState extends State<SignIn> {
   signInUser () {
     if (formKey.currentState!.validate()) {
 
-      // todo to get user details after login
-
-      HelperFunctions.saveUserEmailPreferences(emailEditingController.text);
-
       setState(() {
         isLoading = true;
       });
 
       authService.signInWithEmailAndPassword(emailEditingController.text,
-          passwordEditingController.text).then((val) {
+          passwordEditingController.text).then((val) async {
             if (val != null ) {
-              databaseMethods.getUserByUserEmail(emailEditingController.text)
-              .then((val) {
-                querySnapshot = val;
-                HelperFunctions.saveUsernamePreferences(querySnapshot?.docs[0].get("name"));
-              });
+              QuerySnapshot querySnapshot = await databaseMethods
+                  .getUserByUserEmail(emailEditingController.text);
+
+              print(querySnapshot.docs[0].get("email") + ", " +querySnapshot.docs[0].get("name"));
+              HelperFunctions.saveUserEmailPreferences(querySnapshot.docs[0].get("email"));
+              HelperFunctions.saveUsernamePreferences(querySnapshot.docs[0].get("name"));
               HelperFunctions.saveUserLogggedInPreferences(true);
               Navigator.pushReplacement(context, MaterialPageRoute(
                   builder: (context) => ChatRoom()
 
               ));
+            }else {
+              setState(() {
+                isLoading = false;
+              });
             }
       });
     }
@@ -62,7 +61,9 @@ class _SignInState extends State<SignIn> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBar(),
-      body: SingleChildScrollView(
+      body: isLoading ? Container(
+        child: Center(child: CircularProgressIndicator()),
+      ): SingleChildScrollView(
         child: Container(
           height: MediaQuery.of(context).size.height - 100,
           alignment: Alignment.bottomCenter,
@@ -85,6 +86,7 @@ class _SignInState extends State<SignIn> {
                         }
                       ),
                       TextFormField(
+                        obscureText: true,
                         controller: passwordEditingController,
                         decoration: textFieldInputDecoration("password"),
                         style: simpleTextStyle(),

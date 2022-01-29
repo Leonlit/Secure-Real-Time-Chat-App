@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:flutter/material.dart";
+import 'package:secure_real_time_chat_app/helper/constants.dart';
 import 'package:secure_real_time_chat_app/services/database.dart';
 import 'package:secure_real_time_chat_app/widgets/widget.dart';
+
+import 'Conversation.dart';
 
 class SearchRoom extends StatefulWidget {
 
@@ -15,6 +18,18 @@ class _SearchRoomState extends State<SearchRoom> {
 
   QuerySnapshot? searchSnapshot;
 
+  Widget searchList () {
+    return searchSnapshot != null ? ListView.builder(
+        itemCount: searchSnapshot?.docs.length,
+        shrinkWrap: true,
+        itemBuilder: (context, index) {
+          return userTile(
+            searchSnapshot?.docs[index]["name"],
+            searchSnapshot?.docs[index]["email"],
+          );
+        }) : Container();
+  }
+
   initiateSearch () {
     databaseMethods.getUserByUsername(searchTextEditingEditor.text)
         .then((val){
@@ -24,22 +39,62 @@ class _SearchRoomState extends State<SearchRoom> {
     });
   }
 
-  ///Create Chatroom, send user to new screen, use pushreplacement
-  createChatroomAndStartConversation (String username) {
-    List<String> users = [username, initiatorName];
-    databaseMethods.createChatRoom(chatroomID, chatroomMap)
+  getChatRoomID (String a, String b) {
+    print(a + ", " + b);
+    if (a.substring(0,1).codeUnitAt(0) > b.substring(0,1).codeUnitAt(0)) {
+      return "$b\_$a";
+    }else {
+      return "$a\_$b";
+    }
   }
 
-  Widget searchList () {
-    return searchSnapshot != null ? ListView.builder(
-        itemCount: searchSnapshot?.docs.length,
-        shrinkWrap: true,
-        itemBuilder: (context, index) {
-        return SearchTile(
-          userName: searchSnapshot?.docs[index]["name"],
-          userEmail: searchSnapshot?.docs[index]["email"],
-        );
-    }) : Container();
+  ///Create Chatroom, send user to new screen, use pushreplacement
+  sendMessage (String username) {
+    if (Constants.myName != username) {
+      String chatRoomID = getChatRoomID(Constants.myName, username);
+
+      List<String> users = [Constants.myName, username];
+      Map<String, dynamic> chatRoomMap = {
+        "users": users,
+        "room_name": chatRoomID
+      };
+      DatabaseMethods().createChatRoom(chatRoomID, chatRoomMap);
+      Navigator.push(context, MaterialPageRoute(
+          builder: (context) => Conversation()
+      ));
+    }else {
+      print("Cannot chat with yourself");
+    }
+  }
+
+  Widget userTile(String userName, String userEmail) {
+    return Container(
+      child: Row(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(userName, style: biggerTextStyle(),),
+              Text(userEmail, style: biggerTextStyle(),),
+            ],
+          ),
+          Spacer(),
+          GestureDetector(
+            onTap: () {
+              sendMessage(userName);
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                  color: Colors.blue,
+                  borderRadius: BorderRadius.circular(20)
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Text("Message", style: biggerTextStyle(),),
+            ),
+          )
+        ],
+      ),
+    );
   }
 
   @override
@@ -89,44 +144,6 @@ class _SearchRoomState extends State<SearchRoom> {
             searchList()
           ],
         ),
-      ),
-    );
-  }
-}
-
-class SearchTile extends StatelessWidget {
-
-  final String userName;
-  final String userEmail;
-  SearchTile({required this.userName, required this.userEmail});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: Row(
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(userName, style: biggerTextStyle(),),
-              Text(userEmail, style: biggerTextStyle(),),
-            ],
-          ),
-          Spacer(),
-          GestureDetector(
-            onTap: () {
-
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-                borderRadius: BorderRadius.circular(20)
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Text("Message", style: biggerTextStyle(),),
-            ),
-          )
-        ],
       ),
     );
   }

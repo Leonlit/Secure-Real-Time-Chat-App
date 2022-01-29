@@ -1,7 +1,9 @@
 import "package:flutter/material.dart";
 import 'package:secure_real_time_chat_app/helper/authenticate.dart';
+import 'package:secure_real_time_chat_app/helper/constants.dart';
+import 'package:secure_real_time_chat_app/helper/helper.dart';
 import 'package:secure_real_time_chat_app/helper/theme.dart';
-import 'package:secure_real_time_chat_app/screens/chat_app/searchRoom.dart';
+import 'package:secure_real_time_chat_app/screens/chat_app/searchUser.dart';
 import 'package:secure_real_time_chat_app/services/auth.dart';
 import 'package:secure_real_time_chat_app/widgets/widget.dart';
 
@@ -17,6 +19,17 @@ class _ChatRoomState extends State<ChatRoom> {
   AuthService authService = new AuthService ();
 
   @override
+  void initState() {
+    getUserInfo();
+    // TODO: implement initState
+    super.initState();
+  }
+
+  getUserInfo() async{
+    Constants.myName = await HelperFunctions.getUsernamePreferences();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -27,6 +40,7 @@ class _ChatRoomState extends State<ChatRoom> {
           GestureDetector(
             onTap: () {
               authService.signOut();
+              HelperFunctions.saveUserLogggedInPreferences(false);
               Navigator.pushReplacement(context, MaterialPageRoute(
                 builder: (context) => Authenticate()
               ));

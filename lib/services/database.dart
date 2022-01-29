@@ -9,7 +9,7 @@ class DatabaseMethods {
 
   getUserByUserEmail(String email) async {
     return await FirebaseFirestore.instance.collection("users")
-        .where("name", isEqualTo: email)
+        .where("email", isEqualTo: email)
         .get();
   }
 
@@ -22,6 +22,6 @@ class DatabaseMethods {
     FirebaseFirestore.instance.collection("chatroom")
         .doc(chatroomID).set(chatroomMap).catchError((e) {
           print(e);
-    })
+    });
   }
 }
