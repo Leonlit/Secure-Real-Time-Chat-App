@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import 'package:secure_real_time_chat_app/helper/helper.dart';
 import 'package:secure_real_time_chat_app/screens/chat_app/chatRoom.dart';
 import 'package:secure_real_time_chat_app/services/auth.dart';
 import 'package:secure_real_time_chat_app/services/database.dart';
@@ -21,8 +22,8 @@ class _SignUpState extends State<SignUp> {
   AuthService authService = new AuthService ();
 
   final formKey = GlobalKey<FormState>();
-  TextEditingController usernameEditingController = TextEditingController();
   TextEditingController emailEditingController = TextEditingController();
+  TextEditingController usernameEditingController = TextEditingController();
   TextEditingController passwordEditingController = TextEditingController();
 
   DatabaseMethods databaseMethods = new DatabaseMethods();
@@ -30,18 +31,23 @@ class _SignUpState extends State<SignUp> {
   signUpUser () {
     if (formKey.currentState!.validate()) {
 
+      Map<String, String> userInfoMap = {
+        "name": usernameEditingController.text,
+        "email": emailEditingController.text
+      };
+
+      HelperFunctions.saveUsernamePreferences(usernameEditingController.text);
+      HelperFunctions.saveUserEmailPreferences(emailEditingController.text);
+
+      setState(() {
+        isLoading = true;
+      });
+
       authService.signUpWithEmailAndPassword(emailEditingController.text,
           passwordEditingController.text).then((val) {
-            //print("${val.uid}");
-        Map<String, String> userInfoMap = {
-          "name": usernameEditingController.text,
-          "email": emailEditingController.text
-        };
 
-        setState(() {
-          isLoading = true;
-        });
         databaseMethods.uploadUserInfo(userInfoMap);
+        HelperFunctions.saveUserLogggedInPreferences(true);
 
         Navigator.pushReplacement(context, MaterialPageRoute(
             builder: (context) => ChatRoom()
