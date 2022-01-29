@@ -60,7 +60,7 @@ class _SearchRoomState extends State<SearchRoom> {
       };
       DatabaseMethods().createChatRoom(chatRoomID, chatRoomMap);
       Navigator.push(context, MaterialPageRoute(
-          builder: (context) => Conversation(
+          builder: (context) => Chat(
               chatRoomID
           )
       ));

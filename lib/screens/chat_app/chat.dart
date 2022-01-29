@@ -4,37 +4,43 @@ import 'package:secure_real_time_chat_app/helper/constants.dart';
 import 'package:secure_real_time_chat_app/services/database.dart';
 import 'package:secure_real_time_chat_app/widgets/widget.dart';
 
-class Conversation extends StatefulWidget {
+class Chat extends StatefulWidget {
   String chatRoomId;
-  Conversation(this.chatRoomId);
+  Chat(this.chatRoomId);
 
   @override
-  _ConversationState createState() => _ConversationState();
+  _ChatState createState() => _ChatState();
 }
 
-class _ConversationState extends State<Conversation> {
+class _ChatState extends State<Chat> {
 
   DatabaseMethods databaseMethods = new DatabaseMethods();
   TextEditingController messageEditingEditor = new TextEditingController();
 
   late Stream<QuerySnapshot> chatMessageStream;
 
-  /*Widget chatMessageList () {
+  Widget chatMessageList () {
     return StreamBuilder(
       stream: chatMessageStream,
-      builder: (context, snapshot) {
-        return snapshot.hasData? ListView.builder(
-            itemCount: snapshot.data.,
+      builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        return snapshot.hasData ? ListView.builder(
+            itemCount: snapshot.data!.docs.length,
             itemBuilder: (context, index) {
-              return MessageTile(
-                message: snapshot.data.documents[index].data["message"],
-                sendByMe: Constants.myName == snapshot.data.documents[index].data["sendBy"],
+              return ListView(
+                children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                  Map<String, bool> data = document.data()! as Map<String, bool>;
+                  String msg = data['message']! ?? "";
+                  return MessageTile(
+                    message: ,
+                    sendByMe: Text(data['by']),
+                  );
+                }).toList(),
               );
             },
         ): Container();
       },
     );
-  }*/
+  }
 
   sendMessage () {
     if (messageEditingEditor.text.isNotEmpty) {
@@ -51,6 +57,7 @@ class _ConversationState extends State<Conversation> {
     databaseMethods.getConversationMessages(widget.chatRoomId).then((val) {
       setState(() {
         chatMessageStream = val;
+        print(val);
       });
       print(chatMessageStream.single);
     });
@@ -105,6 +112,61 @@ class _ConversationState extends State<Conversation> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+
+class MessageTile extends StatelessWidget {
+  final String message;
+  final bool sendByMe;
+
+  MessageTile({required this.message, required this.sendByMe});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.only(
+          top: 8,
+          bottom: 8,
+          left: sendByMe ? 0 : 24,
+          right: sendByMe ? 24 : 0),
+      alignment: sendByMe ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        margin: sendByMe
+            ? EdgeInsets.only(left: 30)
+            : EdgeInsets.only(right: 30),
+        padding: EdgeInsets.only(
+            top: 17, bottom: 17, left: 20, right: 20),
+        decoration: BoxDecoration(
+            borderRadius: sendByMe ? BorderRadius.only(
+                topLeft: Radius.circular(23),
+                topRight: Radius.circular(23),
+                bottomLeft: Radius.circular(23)
+            ) :
+            BorderRadius.only(
+                topLeft: Radius.circular(23),
+                topRight: Radius.circular(23),
+                bottomRight: Radius.circular(23)),
+            gradient: LinearGradient(
+              colors: sendByMe ? [
+                const Color(0xff007EF4),
+                const Color(0xff2A75BC)
+              ]
+                  : [
+                const Color(0x1AFFFFFF),
+                const Color(0x1AFFFFFF)
+              ],
+            )
+        ),
+        child: Text(message,
+            textAlign: TextAlign.start,
+            style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontFamily: 'OverpassRegular',
+                fontWeight: FontWeight.w300)),
       ),
     );
   }
