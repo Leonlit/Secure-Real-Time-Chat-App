@@ -13,6 +13,20 @@ class DatabaseMethods {
         .get();
   }
 
+  getConversationMessages(String chatRoomId) {
+    FirebaseFirestore.instance.collection("chatroom")
+        .doc(chatRoomId)
+        .collection("chat")
+        .snapshots();
+  }
+
+  addConversationMessages(String chatRoomId, messageMap) {
+    FirebaseFirestore.instance.collection("chatroom")
+        .doc(chatRoomId)
+        .collection("chat")
+        .add(messageMap).catchError((e) => {print(e)});
+  }
+
   uploadUserInfo (userMap) {
     FirebaseFirestore.instance.collection("users")
         .add(userMap);
@@ -24,4 +38,6 @@ class DatabaseMethods {
           print(e);
     });
   }
+
+
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:secure_real_time_chat_app/helper/theme.dart';
 
-PreferredSizeWidget appBar () {
+PreferredSizeWidget appBar (BuildContext context) {
     return AppBar(
         backgroundColor: THEME_COLOR,
         elevation: 0.0,

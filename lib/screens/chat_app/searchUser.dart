@@ -4,7 +4,7 @@ import 'package:secure_real_time_chat_app/helper/constants.dart';
 import 'package:secure_real_time_chat_app/services/database.dart';
 import 'package:secure_real_time_chat_app/widgets/widget.dart';
 
-import 'Conversation.dart';
+import 'chat.dart';
 
 class SearchRoom extends StatefulWidget {
 
@@ -60,7 +60,9 @@ class _SearchRoomState extends State<SearchRoom> {
       };
       DatabaseMethods().createChatRoom(chatRoomID, chatRoomMap);
       Navigator.push(context, MaterialPageRoute(
-          builder: (context) => Conversation()
+          builder: (context) => Conversation(
+              chatRoomID
+          )
       ));
     }else {
       print("Cannot chat with yourself");
@@ -100,7 +102,7 @@ class _SearchRoomState extends State<SearchRoom> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBar(),
+      appBar: appBar(context),
       body: Container(
         padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         child: Column(
