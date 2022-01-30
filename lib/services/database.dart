@@ -17,6 +17,7 @@ class DatabaseMethods {
     return FirebaseFirestore.instance.collection("chatroom")
         .doc(chatRoomId)
         .collection("chat")
+        .orderBy('time')
         .snapshots();
   }
 

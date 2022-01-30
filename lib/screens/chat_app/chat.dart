@@ -38,9 +38,12 @@ class _ChatState extends State<Chat> {
 
   sendMessage () {
     if (messageEditingEditor.text.isNotEmpty) {
-      Map<String, String> messageMap = {
+      Map<String, dynamic> messageMap = {
         "message": messageEditingEditor.text,
-        "by": Constants.myName
+        "by": Constants.myName,
+        'time': DateTime
+            .now()
+            .millisecondsSinceEpoch,
       };
       databaseMethods.addConversationMessages(widget.chatRoomId, messageMap);
 
