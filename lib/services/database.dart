@@ -13,8 +13,8 @@ class DatabaseMethods {
         .get();
   }
 
-  getConversationMessages(String chatRoomId) {
-    FirebaseFirestore.instance.collection("chatroom")
+  getConversationMessages(String chatRoomId){
+    return FirebaseFirestore.instance.collection("chatroom")
         .doc(chatRoomId)
         .collection("chat")
         .snapshots();

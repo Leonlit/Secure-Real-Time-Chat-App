@@ -17,26 +17,20 @@ class _ChatState extends State<Chat> {
   DatabaseMethods databaseMethods = new DatabaseMethods();
   TextEditingController messageEditingEditor = new TextEditingController();
 
-  late Stream<QuerySnapshot> chatMessageStream;
+  Stream<QuerySnapshot>? chatMessageStream;
 
   Widget chatMessageList () {
     return StreamBuilder(
       stream: chatMessageStream,
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        return snapshot.hasData ? ListView.builder(
-            itemCount: snapshot.data!.docs.length,
-            itemBuilder: (context, index) {
-              return ListView(
-                children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                  Map<String, bool> data = document.data()! as Map<String, bool>;
-                  String msg = data['message']! ?? "";
+        return snapshot.hasData ? ListView(
+              children: snapshot.data!.docs.map((DocumentSnapshot document) {
+
                   return MessageTile(
-                    message: ,
-                    sendByMe: Text(data['by']),
+                    message: document.get("message") ,
+                    sendByMe: Constants.myName == document.get("by"),
                   );
-                }).toList(),
-              );
-            },
+              }).toList(),
         ): Container();
       },
     );
@@ -49,18 +43,27 @@ class _ChatState extends State<Chat> {
         "by": Constants.myName
       };
       databaseMethods.addConversationMessages(widget.chatRoomId, messageMap);
+
+      setState(() {
+        messageEditingEditor.text = "";
+      });
     }
   }
-  
-  @override
-  void initState() {
-    databaseMethods.getConversationMessages(widget.chatRoomId).then((val) {
+
+  getChatHistory () async {
+    Stream<QuerySnapshot>? msgHistory = await databaseMethods.getConversationMessages(widget.chatRoomId);
+    print("test: ");
+    if (msgHistory != null) {
       setState(() {
-        chatMessageStream = val;
-        print(val);
+        chatMessageStream = msgHistory;
       });
-      print(chatMessageStream.single);
-    });
+    }
+  }
+
+  @override
+  void initState(){
+    print(widget.chatRoomId);
+    getChatHistory();
     super.initState();
   }
 
@@ -71,6 +74,7 @@ class _ChatState extends State<Chat> {
       body: Container(
         child: Stack(
           children: [
+            chatMessageList(),
             Container(
               alignment: Alignment.bottomCenter,
               width: MediaQuery.of(context).size.width,
