@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:flutter/material.dart";
 import 'package:secure_real_time_chat_app/helper/authenticate.dart';
 import 'package:secure_real_time_chat_app/helper/constants.dart';
@@ -5,7 +6,10 @@ import 'package:secure_real_time_chat_app/helper/helper.dart';
 import 'package:secure_real_time_chat_app/helper/theme.dart';
 import 'package:secure_real_time_chat_app/screens/chat_app/searchUser.dart';
 import 'package:secure_real_time_chat_app/services/auth.dart';
+import 'package:secure_real_time_chat_app/services/database.dart';
 import 'package:secure_real_time_chat_app/widgets/widget.dart';
+
+import 'chat.dart';
 
 class ChatRoom extends StatefulWidget {
   const ChatRoom({Key? key}) : super(key: key);
@@ -17,16 +21,44 @@ class ChatRoom extends StatefulWidget {
 class _ChatRoomState extends State<ChatRoom> {
 
   AuthService authService = new AuthService ();
+  DatabaseMethods databaseMethods = new DatabaseMethods();
+
+  Stream<QuerySnapshot>? chatRoomStream;
+
+  Widget chatRoomList () {
+    return StreamBuilder(
+      stream: chatRoomStream,
+      builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        return snapshot.hasData ? ListView(
+          shrinkWrap: true,
+          children: snapshot.data!.docs.map((DocumentSnapshot document) {
+            return ChatRoomsTile(
+              username: document.get("room_name")
+                  .toString()
+                  .replaceAll(Constants.myName, "")
+                  .replaceAll("_", ""),
+              chatRoomId: document.get("room_name")
+              ,);
+          }).toList(),
+        ): Container();
+      },
+    );
+  }
 
   @override
   void initState() {
     getUserInfo();
-    // TODO: implement initState
     super.initState();
   }
 
   getUserInfo() async{
     Constants.myName = await HelperFunctions.getUsernamePreferences();
+    Stream<QuerySnapshot>? chatRooms = await databaseMethods.getChatRoom(Constants.myName);
+    if (chatRooms != null) {
+      setState(() {
+        chatRoomStream = chatRooms;
+      });
+    }
   }
 
   @override
@@ -60,7 +92,69 @@ class _ChatRoomState extends State<ChatRoom> {
           ));
           },
       ),
+      body: Container(
+        child: chatRoomList(),
+      ),
     );
   }
 }
 
+class ChatRoomsTile extends StatelessWidget {
+  final String username;
+  final String chatRoomId;
+
+  ChatRoomsTile({required this.username,required this.chatRoomId});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: (){
+        Navigator.push(context, MaterialPageRoute(
+            builder: (context) => Chat(
+                chatRoomId,
+                username
+            )
+        ));
+      },
+      child: Container(
+        decoration: const BoxDecoration(
+          color: Colors.black26,
+          border: Border(
+              bottom: BorderSide(width: 1, color: Color(0xff404040))
+          ),
+        ),
+        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+        child: Row(
+          children: [
+            Container(
+              height: 40,
+              width: 40,
+              decoration: BoxDecoration(
+                  color: THEME_COLOR,
+                  borderRadius: BorderRadius.circular(30)
+              ),
+              child: Icon(Icons.person, color: Colors.white54,size: 30,)/*Text(username.substring(0, 1).toUpperCase(),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 30,
+                      fontFamily: 'OverpassRegular',
+                      fontWeight: FontWeight.w300)),
+                      */
+            ),
+            const SizedBox(
+              width: 20,
+            ),
+            Text(username,
+                textAlign: TextAlign.start,
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontFamily: 'OverpassRegular',
+                    fontWeight: FontWeight.w300))
+          ],
+        ),
+      ),
+    );
+  }
+}

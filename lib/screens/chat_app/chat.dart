@@ -26,8 +26,8 @@ class _ChatState extends State<Chat> {
       stream: chatMessageStream,
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
         return snapshot.hasData ? ListView(
+          shrinkWrap: true,
               children: snapshot.data!.docs.map((DocumentSnapshot document) {
-
                   return MessageTile(
                     message: document.get("message") ,
                     sendByMe: Constants.myName == document.get("by"),

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 class DatabaseMethods {
   getUserByUsername(String username) async {
@@ -18,6 +19,12 @@ class DatabaseMethods {
         .doc(chatRoomId)
         .collection("chat")
         .orderBy('time')
+        .snapshots();
+  }
+
+  getChatRoom (String userName) {
+    return FirebaseFirestore.instance.collection("chatroom")
+        .where("users", arrayContains: userName)
         .snapshots();
   }
 
