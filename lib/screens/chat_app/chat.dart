@@ -1,12 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:secure_real_time_chat_app/helper/constants.dart';
+import 'package:secure_real_time_chat_app/helper/theme.dart';
 import 'package:secure_real_time_chat_app/services/database.dart';
 import 'package:secure_real_time_chat_app/widgets/widget.dart';
 
 class Chat extends StatefulWidget {
   String chatRoomId;
-  Chat(this.chatRoomId);
+  String thePersonChattingTo;
+  Chat( this.chatRoomId, this.thePersonChattingTo);
 
   @override
   _ChatState createState() => _ChatState();
@@ -55,7 +57,6 @@ class _ChatState extends State<Chat> {
 
   getChatHistory () async {
     Stream<QuerySnapshot>? msgHistory = await databaseMethods.getConversationMessages(widget.chatRoomId);
-    print("test: ");
     if (msgHistory != null) {
       setState(() {
         chatMessageStream = msgHistory;
@@ -73,8 +74,13 @@ class _ChatState extends State<Chat> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBar(context),
+      appBar: AppBar(
+        backgroundColor: THEME_COLOR,
+        elevation: 0.0,
+        title: Text(widget.thePersonChattingTo),
+      ),
       body: Container(
+        padding: const EdgeInsets.only(top:10.0),
         child: Stack(
           children: [
             chatMessageList(),
@@ -145,7 +151,7 @@ class MessageTile extends StatelessWidget {
             ? EdgeInsets.only(left: 30)
             : EdgeInsets.only(right: 30),
         padding: EdgeInsets.only(
-            top: 17, bottom: 17, left: 20, right: 20),
+            top: 10, bottom: 10, left: 20, right: 20),
         decoration: BoxDecoration(
             borderRadius: sendByMe ? BorderRadius.only(
                 topLeft: Radius.circular(23),
@@ -158,8 +164,8 @@ class MessageTile extends StatelessWidget {
                 bottomRight: Radius.circular(23)),
             gradient: LinearGradient(
               colors: sendByMe ? [
-                const Color(0xff007EF4),
-                const Color(0xff2A75BC)
+                const Color(0xFF7C20BF),
+                const Color(0x7C6E20FF)
               ]
                   : [
                 const Color(0x1AFFFFFF),
@@ -169,9 +175,9 @@ class MessageTile extends StatelessWidget {
         ),
         child: Text(message,
             textAlign: TextAlign.start,
-            style: TextStyle(
+            style: const TextStyle(
                 color: Colors.white,
-                fontSize: 16,
+                fontSize: 18,
                 fontFamily: 'OverpassRegular',
                 fontWeight: FontWeight.w300)),
       ),
