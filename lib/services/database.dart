@@ -34,6 +34,18 @@ class DatabaseMethods {
         .snapshots();
   }
 
+  getRoomRSAKey (String chatRoomId) {
+    return FirebaseFirestore.instance.collection("chatroom")
+        .doc(chatRoomId)
+        .get();
+  }
+
+  getRoomAESKey (String chatRoomId) {
+    return FirebaseFirestore.instance.collection("chatroom")
+        .doc(chatRoomId)
+        .get();
+  }
+
   addConversationMessages(String chatRoomId, messageMap) {
     FirebaseFirestore.instance.collection("chatroom")
         .doc(chatRoomId)
@@ -52,11 +64,5 @@ class DatabaseMethods {
           print(e);
     });
   }
-
-  saveUserPublicKey (data) {
-    FirebaseFirestore.instance.collection("pubKeys")
-        .add(data);
-  }
-
 
 }

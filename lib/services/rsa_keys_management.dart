@@ -1,19 +1,25 @@
 import 'dart:io';
 import 'package:pointycastle/export.dart';
 import 'package:rsa_encrypt/rsa_encrypt.dart';
+import 'package:secure_real_time_chat_app/helper/helper.dart';
 import 'package:secure_real_time_chat_app/services/database.dart';
 import 'package:pointycastle/src/platform_check/platform_check.dart';
-
-import 'package:pointycastle/api.dart' as crypto;
 import 'package:secure_real_time_chat_app/services/file_management.dart';
 
 class RSAKeyManagement {
 
+  String pubKey = "";
+
   RSAKeyManagement () {
     final pair = generateRSAkeyPair(exampleSecureRandom());
-    final pubKey = pair.publicKey;
+    final helper = RsaKeyHelper();
+    this.pubKey = helper.encodePublicKeyToPemPKCS1(pair.publicKey);
     final privKey = pair.privateKey;
-    saveKeyPair(pubKey, privKey);
+    saveKeyPair(privKey);
+  }
+
+  String getPubKey () {
+    return this.pubKey;
   }
 
   AsymmetricKeyPair<RSAPublicKey, RSAPrivateKey> generateRSAkeyPair(SecureRandom secureRandom, {int bitLength = 2048}) {
@@ -37,28 +43,19 @@ class RSAKeyManagement {
     return secureRandom;
   }
 
+  saveKeyPair(RSAPrivateKey privKey) async {
+    final helper = RsaKeyHelper();
+    StorePrivKeyToFile(helper.encodePrivateKeyToPemPKCS1(privKey));
+  }
+
   StorePrivKeyToFile (String privKey) async {
     print("privKey: " + privKey);
     FileManagement fileManagement = new FileManagement();
-    File file = await fileManagement.localFile("privKey.pem");
+    String uid = await HelperFunctions.getUserUIDPreferences();
+    File file = await fileManagement.localFile("privKey_$uid.pem");
     file.writeAsString(privKey);
     final contents = await file.readAsString();
     print("reading file: ");
     print(contents);
-  }
-
-  saveKeyPair(RSAPublicKey pubKey, RSAPrivateKey privKey) {
-    DatabaseMethods databaseMethods = new DatabaseMethods();
-    final helper = RsaKeyHelper();
-
-    Map<String, dynamic> data = {
-      "userID": "GOHCRMMQbc5a152FkMr1",
-      "pubKey": helper.encodePublicKeyToPemPKCS1(pubKey),
-    };
-
-    print("privKey: " + helper.encodePublicKeyToPemPKCS1(pubKey));
-
-    databaseMethods.saveUserPublicKey(data);
-    StorePrivKeyToFile(helper.encodePrivateKeyToPemPKCS1(privKey));
   }
 }

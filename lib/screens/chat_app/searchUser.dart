@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:flutter/material.dart";
 import 'package:secure_real_time_chat_app/helper/constants.dart';
+import 'package:secure_real_time_chat_app/services/aes_key_management.dart';
 import 'package:secure_real_time_chat_app/services/database.dart';
+import 'package:secure_real_time_chat_app/services/file_management.dart';
 import 'package:secure_real_time_chat_app/widgets/widget.dart';
 
 import 'chat.dart';
@@ -48,15 +52,39 @@ class _SearchRoomState extends State<SearchRoom> {
     }
   }
 
+  isAESKeyFileExists (String username) async {
+    DatabaseMethods databaseMethods = new DatabaseMethods();
+
+
+
+    FileManagement fileManagement = new FileManagement();
+    String roomID = getChatRoomID(Constants.myName, username);
+    bool fileExists = await fileManagement.fileExists("$roomID\_aes");
+    if (!fileExists) {
+      AESKeyManagement(roomID, username);
+    }
+  }
+
+  rsaEncryptAESKey(String username) async{
+    QuerySnapshot snapshot = await databaseMethods.getUserByUsername(username);
+    return snapshot.docs.single.get("pubKey");
+  }
+
   ///Create Chatroom, send user to new screen, use pushreplacement
   sendMessage (String username) {
-    if (Constants.myName != username) {
+    String myName = Constants.myName;
+    if (myName != username) {
       String chatRoomID = getChatRoomID(Constants.myName, username);
 
-      List<String> users = [Constants.myName, username];
+      String myEncryptedAES = rsaEncryptAESKey(Constants.myName);
+      String hisEncryptedAES = rsaEncryptAESKey(username);
+
+      List<String> users = [myName, username];
       Map<String, dynamic> chatRoomMap = {
         "users": users,
-        "room_name": chatRoomID
+        "room_name": chatRoomID,
+        "$myName": myEncryptedAES,
+        "$username": hisEncryptedAES
       };
       DatabaseMethods().createChatRoom(chatRoomID, chatRoomMap);
       Navigator.push(context, MaterialPageRoute(

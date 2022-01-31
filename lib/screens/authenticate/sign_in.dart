@@ -40,7 +40,6 @@ class _SignInState extends State<SignIn> {
               QuerySnapshot querySnapshot = await databaseMethods
                   .getUserByUserEmail(emailEditingController.text);
 
-              print(querySnapshot.docs[0].get("email") + ", " +querySnapshot.docs[0].get("name"));
               HelperFunctions.saveUserEmailPreferences(querySnapshot.docs[0].get("email"));
               HelperFunctions.saveUsernamePreferences(querySnapshot.docs[0].get("name"));
               HelperFunctions.saveUserUIDPreferences(querySnapshot.docs[0].id);

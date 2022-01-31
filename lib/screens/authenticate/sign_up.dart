@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import 'package:pointycastle/asymmetric/api.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:secure_real_time_chat_app/helper/helper.dart';
 import 'package:secure_real_time_chat_app/screens/chat_app/chatRoom.dart';
@@ -33,11 +34,6 @@ class _SignUpState extends State<SignUp> {
   signUpUser () {
     if (formKey.currentState!.validate()) {
 
-      Map<String, String> userInfoMap = {
-        "name": usernameEditingController.text,
-        "email": emailEditingController.text
-      };
-
       HelperFunctions.saveUsernamePreferences(usernameEditingController.text);
       HelperFunctions.saveUserEmailPreferences(emailEditingController.text);
 
@@ -49,9 +45,16 @@ class _SignUpState extends State<SignUp> {
           emailEditingController.text,
           passwordEditingController.text).then((val) {
             if (val != null) {
+              RSAKeyManagement keymanagement = new RSAKeyManagement();
+
+              Map<String, String> userInfoMap = {
+                "name": usernameEditingController.text,
+                "email": emailEditingController.text,
+                "pubKey": keymanagement.pubKey
+              };
               databaseMethods.uploadUserInfo(userInfoMap);
               HelperFunctions.saveUserLogggedInPreferences(true);
-              RSAKeyManagement();
+
 
               Navigator.pushReplacement(context, MaterialPageRoute(
                   builder: (context) => ChatRoom()
