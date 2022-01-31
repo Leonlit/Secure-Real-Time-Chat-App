@@ -6,7 +6,6 @@ import 'package:permission_handler/permission_handler.dart';
 class FileManagement {
   Future<String> get localPath async {
     final directory = await getApplicationDocumentsDirectory();
-
     return directory.path;
   }
 

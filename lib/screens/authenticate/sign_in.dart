@@ -71,7 +71,7 @@ class _SignInState extends State<SignIn> {
         child: Center(child: CircularProgressIndicator()),
       ): SingleChildScrollView(
         child: Container(
-          height: MediaQuery.of(context).size.height - 100,
+          height: MediaQuery.of(context).size.height - 150,
           alignment: Alignment.bottomCenter,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 50.0),

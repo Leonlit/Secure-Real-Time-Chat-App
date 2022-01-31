@@ -42,6 +42,9 @@ class RSAKeyManagement {
     FileManagement fileManagement = new FileManagement();
     File file = await fileManagement.localFile("privKey.pem");
     file.writeAsString(privKey);
+    final contents = await file.readAsString();
+    print("reading file: ");
+    print(contents);
   }
 
   saveKeyPair(RSAPublicKey pubKey, RSAPrivateKey privKey) {
