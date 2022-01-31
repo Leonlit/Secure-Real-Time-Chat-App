@@ -42,7 +42,11 @@ class _SignInState extends State<SignIn> {
               print(querySnapshot.docs[0].get("email") + ", " +querySnapshot.docs[0].get("name"));
               HelperFunctions.saveUserEmailPreferences(querySnapshot.docs[0].get("email"));
               HelperFunctions.saveUsernamePreferences(querySnapshot.docs[0].get("name"));
+              HelperFunctions.saveUserUIDPreferences(querySnapshot.docs[0].id);
               HelperFunctions.saveUserLogggedInPreferences(true);
+              print("user UID: ");
+              print(querySnapshot.docs[0].id);
+
               Navigator.pushReplacement(context, MaterialPageRoute(
                   builder: (context) => ChatRoom()
 

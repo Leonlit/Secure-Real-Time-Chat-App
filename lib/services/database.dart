@@ -8,6 +8,12 @@ class DatabaseMethods {
         .get();
   }
 
+  getUserIdByEmail (String email) async {
+    return await FirebaseFirestore.instance.collection("users")
+        .where("email", isEqualTo: email)
+        .get();
+  }
+
   getUserByUserEmail(String email) async {
     return await FirebaseFirestore.instance.collection("users")
         .where("email", isEqualTo: email)
@@ -45,6 +51,11 @@ class DatabaseMethods {
         .doc(chatroomID).set(chatroomMap).catchError((e) {
           print(e);
     });
+  }
+
+  saveUserPublicKey (data) {
+    FirebaseFirestore.instance.collection("pubKeys")
+        .add(data);
   }
 
 
