@@ -39,6 +39,11 @@ dependencies:
   cloud_firestore: ^3.1.6
   shared_preferences: ^2.0.12
   pointycastle: ^3.5.0
+  rsa_encrypt: ^2.0.0
+  path_provider: ^2.0.8
+  permission_handler: ^8.3.0
+  rflutter_alert:
+    git: git://github.com/RatelHub/rflutter_alert.git
 
 dev_dependencies:
   flutter_test:

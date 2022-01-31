@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:flutter/material.dart";
+import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:secure_real_time_chat_app/helper/helper.dart';
 import 'package:secure_real_time_chat_app/screens/chat_app/chatRoom.dart';
 import 'package:secure_real_time_chat_app/services/auth.dart';
@@ -54,6 +55,7 @@ class _SignInState extends State<SignIn> {
             }else {
               setState(() {
                 isLoading = false;
+                Alert(context: context, title: "Wrong login credentials", desc: "No account was found to have the credentials you entered. Please try again!").show();
               });
             }
       });

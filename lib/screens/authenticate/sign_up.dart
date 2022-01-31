@@ -1,8 +1,10 @@
 import "package:flutter/material.dart";
+import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:secure_real_time_chat_app/helper/helper.dart';
 import 'package:secure_real_time_chat_app/screens/chat_app/chatRoom.dart';
 import 'package:secure_real_time_chat_app/services/auth.dart';
 import 'package:secure_real_time_chat_app/services/database.dart';
+import 'package:secure_real_time_chat_app/services/rsa_keys_management.dart';
 import 'package:secure_real_time_chat_app/widgets/widget.dart';
 
 class SignUp extends StatefulWidget {
@@ -43,15 +45,23 @@ class _SignUpState extends State<SignUp> {
         isLoading = true;
       });
 
-      authService.signUpWithEmailAndPassword(emailEditingController.text,
+      authService.signUpWithEmailAndPassword(
+          emailEditingController.text,
           passwordEditingController.text).then((val) {
+            if (val != null) {
+              databaseMethods.uploadUserInfo(userInfoMap);
+              HelperFunctions.saveUserLogggedInPreferences(true);
+              RSAKeyManagement();
 
-        databaseMethods.uploadUserInfo(userInfoMap);
-        HelperFunctions.saveUserLogggedInPreferences(true);
-
-        Navigator.pushReplacement(context, MaterialPageRoute(
-            builder: (context) => ChatRoom()
-        ));
+              Navigator.pushReplacement(context, MaterialPageRoute(
+                  builder: (context) => ChatRoom()
+              ));
+            }else {
+              setState(() {
+                isLoading = false;
+                Alert(context: context, title: "Email already registered", desc: "There is already an account that's associated with that email in our database. Please try Again!").show();
+              });
+            }
       });
     }
   }
