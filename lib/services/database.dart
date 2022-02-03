@@ -8,10 +8,11 @@ class DatabaseMethods {
         .get();
   }
 
-  getUserIdByEmail (String email) async {
-    return await FirebaseFirestore.instance.collection("users")
+  Future<String> getUserIdByEmail (String email) async {
+    QuerySnapshot snapshot = await FirebaseFirestore.instance.collection("users")
         .where("email", isEqualTo: email)
         .get();
+    return snapshot.docs.first.id;
   }
 
   getUserByUserEmail(String email) async {
@@ -34,19 +35,13 @@ class DatabaseMethods {
         .snapshots();
   }
 
-  getRoomRSAKey (String chatRoomId) {
+  Future<DocumentSnapshot> getChatRoomByID (String chatRoomId) {
     return FirebaseFirestore.instance.collection("chatroom")
         .doc(chatRoomId)
         .get();
   }
 
-  getRoomAESKey (String chatRoomId) {
-    return FirebaseFirestore.instance.collection("chatroom")
-        .doc(chatRoomId)
-        .get();
-  }
-
-  isChatRoomExists(String chatRoomId) async {
+  Future<bool> isChatRoomExists(String chatRoomId) async {
     DocumentSnapshot snapshot = await FirebaseFirestore.instance.collection("chatroom")
         .doc(chatRoomId)
         .get();

@@ -67,7 +67,7 @@ class HelperFunctions {
     return await prefs.getString(sharedPreferenceUserUID);
   }
 
-  static Future<dynamic> getAESKeysForChatRoom (String chatRoomID, String key) async{
+  static Future<dynamic> getAESKeysForChatRoom (String chatRoomID) async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (sharedPreferenceAESKeys != "") {
       String jsonString = prefs.getString(sharedPreferenceAESKeys)!;

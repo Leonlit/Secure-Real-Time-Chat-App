@@ -53,8 +53,8 @@ class _SignUpState extends State<SignUp> {
                 "pubKey": keymanagement.pubKey
               };
               databaseMethods.uploadUserInfo(userInfoMap);
+              keymanagement.savePrivKey();
               HelperFunctions.saveUserLogggedInPreferences(true);
-
 
               Navigator.pushReplacement(context, MaterialPageRoute(
                   builder: (context) => ChatRoom()

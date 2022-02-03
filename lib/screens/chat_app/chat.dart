@@ -1,47 +1,56 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:secure_real_time_chat_app/helper/constants.dart';
+import 'package:secure_real_time_chat_app/helper/helper.dart';
 import 'package:secure_real_time_chat_app/helper/theme.dart';
 import 'package:secure_real_time_chat_app/services/database.dart';
+import 'package:secure_real_time_chat_app/services/encryption_management.dart';
 import 'package:secure_real_time_chat_app/widgets/widget.dart';
 
 class Chat extends StatefulWidget {
   String chatRoomId;
   String thePersonChattingTo;
-  Chat( this.chatRoomId, this.thePersonChattingTo);
+
+  Chat(this.chatRoomId, this.thePersonChattingTo);
 
   @override
   _ChatState createState() => _ChatState();
 }
 
 class _ChatState extends State<Chat> {
-
+  dynamic aesKey = "";
   DatabaseMethods databaseMethods = new DatabaseMethods();
   TextEditingController messageEditingEditor = new TextEditingController();
 
   Stream<QuerySnapshot>? chatMessageStream;
 
-  Widget chatMessageList () {
+  Widget chatMessageList() {
     return StreamBuilder(
       stream: chatMessageStream,
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
         return snapshot.hasData ? ListView(
           shrinkWrap: true,
-              children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                  return MessageTile(
-                    message: document.get("message") ,
-                    sendByMe: Constants.myName == document.get("by"),
-                  );
-              }).toList(),
-        ): Container();
+          children: snapshot.data!.docs.map((DocumentSnapshot document) {
+            print(this.aesKey);
+            String message = Encryption_Management.decryptWithAESKey(
+                this.aesKey, document.get("message"));
+            return MessageTile(
+              message: message,
+              sendByMe: Constants.myName == document.get("by"),
+            );
+          }).toList(),
+        ) : Container();
       },
     );
   }
 
-  sendMessage () {
+  sendMessage() async {
     if (messageEditingEditor.text.isNotEmpty) {
+      print(this.aesKey);
+      String message = Encryption_Management.encryptWithAESKey(
+          this.aesKey, messageEditingEditor.text);
       Map<String, dynamic> messageMap = {
-        "message": messageEditingEditor.text,
+        "message": message,
         "by": Constants.myName,
         'time': DateTime
             .now()
@@ -55,8 +64,16 @@ class _ChatState extends State<Chat> {
     }
   }
 
-  getChatHistory () async {
-    Stream<QuerySnapshot>? msgHistory = await databaseMethods.getConversationMessages(widget.chatRoomId);
+  getChatHistory() async {
+    if (aesKey == "" && aesKey == null) {
+      this.aesKey = await HelperFunctions.getAESKeysForChatRoom(widget.chatRoomId);
+    }else {
+      DocumentSnapshot snapshot = await databaseMethods.getChatRoomByID(widget.chatRoomId);
+      String privKey = await Encryption_Management.getPrivKeyFromStorage(await HelperFunctions.getUserUIDPreferences());
+      this.aesKey = Encryption_Management.decryptWithRSAPrivKey(privKey, snapshot.get(Constants.myName));
+    }
+    Stream<QuerySnapshot>? msgHistory = await databaseMethods
+        .getConversationMessages(widget.chatRoomId);
     if (msgHistory != null) {
       setState(() {
         chatMessageStream = msgHistory;
@@ -65,8 +82,7 @@ class _ChatState extends State<Chat> {
   }
 
   @override
-  void initState(){
-    print(widget.chatRoomId);
+  void initState() {
     getChatHistory();
     super.initState();
   }
@@ -80,13 +96,16 @@ class _ChatState extends State<Chat> {
         title: Text(widget.thePersonChattingTo),
       ),
       body: Container(
-        padding: const EdgeInsets.only(top:10.0),
+        padding: const EdgeInsets.only(top: 10.0),
         child: Stack(
           children: [
             chatMessageList(),
             Container(
               alignment: Alignment.bottomCenter,
-              width: MediaQuery.of(context).size.width,
+              width: MediaQuery
+                  .of(context)
+                  .size
+                  .width,
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: const BoxDecoration(
