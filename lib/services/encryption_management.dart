@@ -2,7 +2,10 @@ import 'dart:io';
 
 import 'package:encrypt/encrypt.dart';
 import 'package:pointycastle/asymmetric/api.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:rsa_encrypt/rsa_encrypt.dart';
+import 'package:secure_real_time_chat_app/services/database.dart';
+import 'package:secure_real_time_chat_app/services/rsa_keys_management.dart';
 
 import 'file_management.dart';
 
@@ -46,5 +49,18 @@ class Encryption_Management {
     Encrypted encrypted = Encrypted.fromBase64(data);
     String decryptedData = encrypter.decrypt(encrypted, iv: IV.fromBase64(keyArr[1]));
     return decryptedData;
+  }
+
+  static isPrivKeyIfExists (String uid) async{
+    FileManagement fileManagement = new FileManagement();
+    return await fileManagement.fileExists("privKey_$uid.pem");
+  }
+  static recreateRSAKeys(String uid, context) {
+    DatabaseMethods databaseMethods = new DatabaseMethods();
+    Alert(context: context, title: "No private key file found!", desc: "Re-generating key pair as no private key for this user is found on this device ").show();
+    print("Recreating priv key pem file\n\n");
+    RSAKeyManagement keyManagement = new RSAKeyManagement();
+    keyManagement.savePrivKey();
+    databaseMethods.updateUserPublicKey(uid, keyManagement.getPubKey());
   }
 }

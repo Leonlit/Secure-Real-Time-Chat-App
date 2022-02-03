@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:flutter/material.dart";
+import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:secure_real_time_chat_app/helper/authenticate.dart';
 import 'package:secure_real_time_chat_app/helper/constants.dart';
 import 'package:secure_real_time_chat_app/helper/helper.dart';
@@ -7,6 +8,7 @@ import 'package:secure_real_time_chat_app/helper/theme.dart';
 import 'package:secure_real_time_chat_app/screens/chat_app/searchUser.dart';
 import 'package:secure_real_time_chat_app/services/auth.dart';
 import 'package:secure_real_time_chat_app/services/database.dart';
+import 'package:secure_real_time_chat_app/services/encryption_management.dart';
 import 'package:secure_real_time_chat_app/widgets/widget.dart';
 
 import 'chat.dart';
@@ -53,6 +55,13 @@ class _ChatRoomState extends State<ChatRoom> {
 
   getUserInfo() async{
     Constants.myName = await HelperFunctions.getUsernamePreferences();
+    bool privKeyExists = await Encryption_Management.isPrivKeyIfExists(await HelperFunctions.getUserUIDPreferences());
+    if (!privKeyExists) {
+      Encryption_Management.recreateRSAKeys(await HelperFunctions.getUserUIDPreferences(), context);
+      await databaseMethods.deleteAllChatFromUser(Constants.myName);
+      Alert(context: context, title: "Deleting all old chatRoom").show();
+    }
+
     Stream<QuerySnapshot>? chatRooms = await databaseMethods.getChatRoom(Constants.myName);
     if (chatRooms != null) {
       setState(() {

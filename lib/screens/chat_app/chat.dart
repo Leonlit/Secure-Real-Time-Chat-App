@@ -31,13 +31,19 @@ class _ChatState extends State<Chat> {
         return snapshot.hasData ? ListView(
           shrinkWrap: true,
           children: snapshot.data!.docs.map((DocumentSnapshot document) {
-            print(this.aesKey);
-            String message = Encryption_Management.decryptWithAESKey(
-                this.aesKey, document.get("message"));
-            return MessageTile(
-              message: message,
-              sendByMe: Constants.myName == document.get("by"),
-            );
+            String message = "";
+            try {
+              message = Encryption_Management.decryptWithAESKey(
+                  this.aesKey, document.get("message"));
+            }on FormatException {
+                return Container();
+              }
+              return MessageTile(
+                message: message,
+                sendByMe: Constants.myName == document.get("by"),
+              );
+
+
           }).toList(),
         ) : Container();
       },
@@ -65,9 +71,8 @@ class _ChatState extends State<Chat> {
   }
 
   getChatHistory() async {
-    if (aesKey == "" && aesKey == null) {
-      this.aesKey = await HelperFunctions.getAESKeysForChatRoom(widget.chatRoomId);
-    }else {
+    this.aesKey = await HelperFunctions.getAESKeysForChatRoom(widget.chatRoomId);
+    if (aesKey == "" || aesKey == null) {
       DocumentSnapshot snapshot = await databaseMethods.getChatRoomByID(widget.chatRoomId);
       String privKey = await Encryption_Management.getPrivKeyFromStorage(await HelperFunctions.getUserUIDPreferences());
       this.aesKey = Encryption_Management.decryptWithRSAPrivKey(privKey, snapshot.get(Constants.myName));

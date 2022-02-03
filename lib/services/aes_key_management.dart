@@ -13,10 +13,6 @@ class AESKeyManagement {
     IV iv = IV.fromSecureRandom(16);
     String keyBase64 = key.key.base64;
     String iv_base64 = iv.base64;
-    print("IV is: ");
-    print(iv_base64);
-    print("key is is: ");
-    print(keyBase64);
     this.key = "$keyBase64:$iv_base64";
   }
 

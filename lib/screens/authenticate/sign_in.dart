@@ -5,6 +5,7 @@ import 'package:secure_real_time_chat_app/helper/helper.dart';
 import 'package:secure_real_time_chat_app/screens/chat_app/chatRoom.dart';
 import 'package:secure_real_time_chat_app/services/auth.dart';
 import 'package:secure_real_time_chat_app/services/database.dart';
+import 'package:secure_real_time_chat_app/services/encryption_management.dart';
 import 'package:secure_real_time_chat_app/widgets/widget.dart';
 
 class SignIn extends StatefulWidget {
