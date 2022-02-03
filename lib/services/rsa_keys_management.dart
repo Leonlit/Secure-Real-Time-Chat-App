@@ -15,7 +15,7 @@ class RSAKeyManagement {
     final helper = RsaKeyHelper();
     this.pubKey = helper.encodePublicKeyToPemPKCS1(pair.publicKey);
     final privKey = pair.privateKey;
-    saveKeyPair(privKey);
+    savePrivKey(privKey);
   }
 
   String getPubKey () {
@@ -43,7 +43,7 @@ class RSAKeyManagement {
     return secureRandom;
   }
 
-  saveKeyPair(RSAPrivateKey privKey) async {
+  savePrivKey(RSAPrivateKey privKey) async {
     final helper = RsaKeyHelper();
     StorePrivKeyToFile(helper.encodePrivateKeyToPemPKCS1(privKey));
   }

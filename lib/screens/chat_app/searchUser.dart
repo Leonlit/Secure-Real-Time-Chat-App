@@ -52,51 +52,44 @@ class _SearchRoomState extends State<SearchRoom> {
     }
   }
 
-  isAESKeyFileExists (String username) async {
-    DatabaseMethods databaseMethods = new DatabaseMethods();
-
-
-
-    FileManagement fileManagement = new FileManagement();
-    String roomID = getChatRoomID(Constants.myName, username);
-    bool fileExists = await fileManagement.fileExists("$roomID\_aes");
-    if (!fileExists) {
-      AESKeyManagement(roomID, username);
-    }
-  }
-
   rsaEncryptAESKey(String username) async{
     QuerySnapshot snapshot = await databaseMethods.getUserByUsername(username);
-    return snapshot.docs.single.get("pubKey");
+    String pubKey = snapshot.docs.single.get("pubKey");
+
   }
 
-  ///Create Chatroom, send user to new screen, use pushreplacement
   sendMessage (String username) {
     String myName = Constants.myName;
     if (myName != username) {
       String chatRoomID = getChatRoomID(Constants.myName, username);
 
-      String myEncryptedAES = rsaEncryptAESKey(Constants.myName);
-      String hisEncryptedAES = rsaEncryptAESKey(username);
+      if (!databaseMethods.isChatRoomExists(chatRoomID)) {
+        String myEncryptedAES = rsaEncryptAESKey(Constants.myName);
+        String hisEncryptedAES = rsaEncryptAESKey(username);
 
-      List<String> users = [myName, username];
-      Map<String, dynamic> chatRoomMap = {
-        "users": users,
-        "room_name": chatRoomID,
-        "$myName": myEncryptedAES,
-        "$username": hisEncryptedAES
-      };
-      DatabaseMethods().createChatRoom(chatRoomID, chatRoomMap);
+        List<String> users = [myName, username];
+        Map<String, dynamic> chatRoomMap = {
+          "users": users,
+          "room_name": chatRoomID,
+          "$myName": myEncryptedAES,
+          "$username": hisEncryptedAES
+        };
+        DatabaseMethods().createChatRoom(chatRoomID, chatRoomMap);
+      }else {
+
+      }
       Navigator.push(context, MaterialPageRoute(
-          builder: (context) => Chat(
-              chatRoomID,
-              username
-          )
+          builder: (context) =>
+              Chat(
+                  chatRoomID,
+                  username
+              )
       ));
-    }else {
+    } else {
       print("Cannot chat with yourself");
     }
   }
+
 
   Widget userTile(String userName, String userEmail) {
     return Container(

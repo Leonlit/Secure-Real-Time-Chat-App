@@ -46,6 +46,13 @@ class DatabaseMethods {
         .get();
   }
 
+  isChatRoomExists(String chatRoomId) async {
+    DocumentSnapshot snapshot = await FirebaseFirestore.instance.collection("chatroom")
+        .doc(chatRoomId)
+        .get();
+    return snapshot.exists;
+  }
+
   addConversationMessages(String chatRoomId, messageMap) {
     FirebaseFirestore.instance.collection("chatroom")
         .doc(chatRoomId)
