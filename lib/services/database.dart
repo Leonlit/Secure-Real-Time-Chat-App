@@ -8,10 +8,11 @@ class DatabaseMethods {
         .get();
   }
 
-  getUserIdByEmail (String email) async {
-    return await FirebaseFirestore.instance.collection("users")
+  Future<String> getUserIdByEmail (String email) async {
+    QuerySnapshot snapshot = await FirebaseFirestore.instance.collection("users")
         .where("email", isEqualTo: email)
         .get();
+    return snapshot.docs.first.id;
   }
 
   getUserByUserEmail(String email) async {
@@ -34,6 +35,19 @@ class DatabaseMethods {
         .snapshots();
   }
 
+  Future<DocumentSnapshot> getChatRoomByID (String chatRoomId) {
+    return FirebaseFirestore.instance.collection("chatroom")
+        .doc(chatRoomId)
+        .get();
+  }
+
+  Future<bool> isChatRoomExists(String chatRoomId) async {
+    DocumentSnapshot snapshot = await FirebaseFirestore.instance.collection("chatroom")
+        .doc(chatRoomId)
+        .get();
+    return snapshot.exists;
+  }
+
   addConversationMessages(String chatRoomId, messageMap) {
     FirebaseFirestore.instance.collection("chatroom")
         .doc(chatRoomId)
@@ -52,11 +66,5 @@ class DatabaseMethods {
           print(e);
     });
   }
-
-  saveUserPublicKey (data) {
-    FirebaseFirestore.instance.collection("pubKeys")
-        .add(data);
-  }
-
 
 }

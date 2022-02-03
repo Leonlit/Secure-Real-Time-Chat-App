@@ -21,4 +21,8 @@ class FileManagement {
     print(path);
     return File('$path/$filename');
   }
+
+  Future<bool> fileExists (String filePath) {
+    return File(filePath).exists();
+  }
 }

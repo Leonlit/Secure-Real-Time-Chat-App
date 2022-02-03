@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HelperFunctions {
@@ -5,6 +7,7 @@ class HelperFunctions {
   static String sharedPreferenceUsernameKey = "USERNAME_KEY";
   static String sharedPreferenceUserEmailKey = "USER_EMAIL_KEY";
   static String sharedPreferenceUserUID = "USER_UID";
+  static String sharedPreferenceAESKeys = "";
 
   //save preferences
   static Future<bool> saveUserLogggedInPreferences (bool userLoggedIn) async {
@@ -27,6 +30,21 @@ class HelperFunctions {
     return await prefs.setString(sharedPreferenceUserUID, userUID);
   }
 
+  static Future<bool> saveAESKeysForChatRoom (String chatRoomID, String key) async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (sharedPreferenceAESKeys != "") {
+      String jsonString = prefs.getString(sharedPreferenceAESKeys)!;
+      List<dynamic> oldKeysList = jsonDecode(jsonString);
+      oldKeysList.add({
+        "chatRoomID": chatRoomID,
+        "key": key
+      });
+      jsonString = jsonEncode(oldKeysList);
+      return await prefs.setString(sharedPreferenceAESKeys, jsonString);
+    }
+    return false;
+  }
+
   //getting preferences data
   static Future<bool> getUserLoggedInPreferences () async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -47,6 +65,22 @@ class HelperFunctions {
   static Future<dynamic> getUserUIDPreferences () async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return await prefs.getString(sharedPreferenceUserUID);
+  }
+
+  static Future<dynamic> getAESKeysForChatRoom (String chatRoomID) async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (sharedPreferenceAESKeys != "") {
+      String jsonString = prefs.getString(sharedPreferenceAESKeys)!;
+      List<dynamic> oldKeysList = jsonDecode(jsonString);
+      for (var map in oldKeysList) {
+        if (map?.containsKey("chatRoomID") ?? false) {
+          if (map!["chatRoomID"] == chatRoomID) {
+            return map!["key"];
+          }
+        }
+      }
+    }
+    return null;
   }
 
 

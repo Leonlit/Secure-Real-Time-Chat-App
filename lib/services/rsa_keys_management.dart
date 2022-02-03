@@ -1,22 +1,30 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pointycastle/export.dart';
 import 'package:rsa_encrypt/rsa_encrypt.dart';
+import 'package:secure_real_time_chat_app/helper/helper.dart';
 import 'package:secure_real_time_chat_app/services/database.dart';
 import 'package:pointycastle/src/platform_check/platform_check.dart';
-
-import 'package:pointycastle/api.dart' as crypto;
 import 'package:secure_real_time_chat_app/services/file_management.dart';
 
 class RSAKeyManagement {
+  String pubKey = "";
+  String privKey = "";
 
-  RSAKeyManagement () {
+  RSAKeyManagement() {
     final pair = generateRSAkeyPair(exampleSecureRandom());
-    final pubKey = pair.publicKey;
-    final privKey = pair.privateKey;
-    saveKeyPair(pubKey, privKey);
+    final helper = RsaKeyHelper();
+    this.pubKey = helper.encodePublicKeyToPemPKCS1(pair.publicKey);
+    this.privKey = helper.encodePrivateKeyToPemPKCS1(pair.privateKey);
   }
 
-  AsymmetricKeyPair<RSAPublicKey, RSAPrivateKey> generateRSAkeyPair(SecureRandom secureRandom, {int bitLength = 2048}) {
+  String getPubKey() {
+    return this.pubKey;
+  }
+
+  AsymmetricKeyPair<RSAPublicKey, RSAPrivateKey> generateRSAkeyPair(
+      SecureRandom secureRandom,
+      {int bitLength = 2048}) {
     final keyGen = RSAKeyGenerator()
       ..init(ParametersWithRandom(
           RSAKeyGeneratorParameters(BigInt.parse('65537'), bitLength, 64),
@@ -31,34 +39,24 @@ class RSAKeyManagement {
 
   SecureRandom exampleSecureRandom() {
     final secureRandom = SecureRandom('Fortuna')
-      ..seed(KeyParameter(
-          Platform.instance.platformEntropySource().getBytes(32))
-      );
+      ..seed(
+          KeyParameter(Platform.instance.platformEntropySource().getBytes(32)));
     return secureRandom;
   }
 
-  StorePrivKeyToFile (String privKey) async {
-    print("privKey: " + privKey);
+  savePrivKey() async {
+    StorePrivKeyToFile(this.privKey);
+  }
+
+  StorePrivKeyToFile(String privKey) async {
+    DatabaseMethods databaseMethods = new DatabaseMethods();
     FileManagement fileManagement = new FileManagement();
-    File file = await fileManagement.localFile("privKey.pem");
+    String uid = await databaseMethods.getUserIdByEmail(await HelperFunctions.getUserEmailPreferences());
+    await HelperFunctions.saveUserUIDPreferences(uid);
+    File file = await fileManagement.localFile("privKey_$uid.pem");
     file.writeAsString(privKey);
     final contents = await file.readAsString();
     print("reading file: ");
     print(contents);
-  }
-
-  saveKeyPair(RSAPublicKey pubKey, RSAPrivateKey privKey) {
-    DatabaseMethods databaseMethods = new DatabaseMethods();
-    final helper = RsaKeyHelper();
-
-    Map<String, dynamic> data = {
-      "userID": "GOHCRMMQbc5a152FkMr1",
-      "pubKey": helper.encodePublicKeyToPemPKCS1(pubKey),
-    };
-
-    print("privKey: " + helper.encodePublicKeyToPemPKCS1(pubKey));
-
-    databaseMethods.saveUserPublicKey(data);
-    StorePrivKeyToFile(helper.encodePrivateKeyToPemPKCS1(privKey));
   }
 }
