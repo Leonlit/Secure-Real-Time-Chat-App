@@ -34,8 +34,6 @@ class Encryption_Management {
   }
 
   static encryptWithAESKey (String key, String data) {
-    print("test");
-    print(key);
     dynamic keyArr = key.split(":");
     Key aesKey = Key.fromBase64(keyArr[0]);
     final encrypter = Encrypter(AES(aesKey));
@@ -44,9 +42,7 @@ class Encryption_Management {
   }
 
   static decryptWithAESKey (String key, String data) {
-    print(key);
     dynamic keyArr = key.split(":");
-    print(keyArr);
     Key aesKey = Key.fromBase64(keyArr[0]);
     final encrypter = Encrypter(AES(aesKey));
     Encrypted encrypted = Encrypted.fromBase64(data);

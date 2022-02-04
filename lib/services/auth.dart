@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:secure_real_time_chat_app/helper/helper.dart';
 import "package:secure_real_time_chat_app/models/user.dart";
 
 
@@ -42,6 +43,7 @@ class AuthService {
 
   Future signOut () async {
     try {
+      await HelperFunctions.clearPreferences();
       return await _auth.signOut();
     }catch (e) {
       print(e);

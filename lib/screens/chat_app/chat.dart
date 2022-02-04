@@ -6,6 +6,7 @@ import 'package:secure_real_time_chat_app/helper/theme.dart';
 import 'package:secure_real_time_chat_app/services/database.dart';
 import 'package:secure_real_time_chat_app/services/encryption_management.dart';
 import 'package:secure_real_time_chat_app/widgets/widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Chat extends StatefulWidget {
   String chatRoomId;
@@ -22,10 +23,10 @@ class _ChatState extends State<Chat> {
   DatabaseMethods databaseMethods = new DatabaseMethods();
   TextEditingController messageEditingEditor = new TextEditingController();
 
-
   Stream<QuerySnapshot>? chatMessageStream;
 
   Widget chatMessageList() {
+    print(MediaQuery.of(context).size.height - (MediaQuery.of(context).viewInsets.bottom ?? 0) - 150);
     ScrollController listScrollController = ScrollController();
     Widget returnedWidget = StreamBuilder(
       stream: chatMessageStream,
@@ -35,6 +36,7 @@ class _ChatState extends State<Chat> {
                 controller: listScrollController,
                 shrinkWrap: false,
                 children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                  print("test");
                   String message = Encryption_Management.decryptWithAESKey(
                       this.aesKey, document.get("message"));
                   print(message);
@@ -61,7 +63,6 @@ class _ChatState extends State<Chat> {
 
   sendMessage() async {
     if (messageEditingEditor.text.isNotEmpty) {
-      print(this.aesKey);
       String message = Encryption_Management.encryptWithAESKey(
           this.aesKey, messageEditingEditor.text);
       Map<String, dynamic> messageMap = {
@@ -80,26 +81,24 @@ class _ChatState extends State<Chat> {
   getChatHistory() async {
     this.aesKey =
         await HelperFunctions.getAESKeysForChatRoom(widget.chatRoomId);
+    print("Is aes key there");
+    print(this.aesKey);
     if (aesKey == "" || aesKey == null) {
       print("get chatroom aes key from database");
       this.aesKey =
           await Encryption_Management.getAESKeyFromDatabase(widget.chatRoomId);
+      await HelperFunctions.saveAESKeysForChatRoom(widget.chatRoomId, this.aesKey);
     }
+
 
     Stream<QuerySnapshot>? msgHistory =
         await databaseMethods.getConversationMessages(widget.chatRoomId);
-    print(msgHistory?.length);
-    if (msgHistory != null) {
-      msgHistory.first.then((value) {
-        print("Test when getting chat history");
-        print(value.docs.first.id);
-      });
-      setState(() {
-        chatMessageStream = msgHistory;
-      });
-    } else {
-      print("empty history");
-    }
+
+    print("Test when getting chat history");
+
+    setState(() {
+      chatMessageStream = msgHistory;
+    });
   }
 
   @override
@@ -122,7 +121,7 @@ class _ChatState extends State<Chat> {
           children: [
             Container (
                 alignment: Alignment.topCenter,
-                height: MediaQuery.of(context).size.height - MediaQuery.of(context).viewInsets.bottom - 150,
+                height: MediaQuery.of(context).size.height - (MediaQuery.of(context).viewInsets.bottom) - 150,
                 child: chatMessageList()
             ),
             Container(

@@ -39,7 +39,7 @@ class _ChatRoomState extends State<ChatRoom> {
                   .toString()
                   .replaceAll(Constants.myName, "")
                   .replaceAll("_", ""),
-              chatRoomId: document.get("room_name")
+              chatRoomId: document.id
               ,);
           }).toList(),
         ): Container();
