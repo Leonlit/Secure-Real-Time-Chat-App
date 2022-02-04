@@ -96,6 +96,15 @@ class DatabaseMethods {
         .then((snapshot) async {
         for (var doc in snapshot.docs) {
           print(doc.id);
+          FirebaseFirestore.instance.collection("chatroom")
+          .doc(doc.id)
+          .collection("chat")
+          .get()
+          .then((value){
+            for (var subDoc in value.docs) {
+              subDoc.reference.delete();
+            }
+          });
           await doc.reference.delete();
         }
     });

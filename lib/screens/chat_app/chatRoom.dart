@@ -55,7 +55,9 @@ class _ChatRoomState extends State<ChatRoom> {
 
   getUserInfo() async{
     Constants.myName = await HelperFunctions.getUsernamePreferences();
+    print(await HelperFunctions.getUserUIDPreferences());
     bool privKeyExists = await Encryption_Management.isPrivKeyIfExists(await HelperFunctions.getUserUIDPreferences());
+    print(privKeyExists);
     if (!privKeyExists) {
       Encryption_Management.recreateRSAKeys(await HelperFunctions.getUserUIDPreferences(), context);
       await databaseMethods.deleteAllChatFromUser(Constants.myName);

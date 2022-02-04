@@ -56,7 +56,8 @@ class Encryption_Management {
 
   static isPrivKeyIfExists (String uid) async{
     FileManagement fileManagement = new FileManagement();
-    return await fileManagement.fileExists("privKey_$uid.pem");
+    File file = await fileManagement.localFile("privKey_$uid.pem");
+    return file.exists();
   }
   static recreateRSAKeys(String uid, context) {
     DatabaseMethods databaseMethods = new DatabaseMethods();
@@ -71,6 +72,6 @@ class Encryption_Management {
     DatabaseMethods databaseMethods = new DatabaseMethods();
     DocumentSnapshot snapshot = await databaseMethods.getChatRoomByID(chatroomID);
     String privKey = await Encryption_Management.getPrivKeyFromStorage(await HelperFunctions.getUserUIDPreferences());
-    return Encryption_Management.decryptWithRSAPrivKey(privKey, snapshot.get(Constants.myName));
+    return await Encryption_Management.decryptWithRSAPrivKey(privKey, snapshot.get(Constants.myName));
   }
 }

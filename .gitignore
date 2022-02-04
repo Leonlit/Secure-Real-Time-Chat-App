@@ -9,6 +9,7 @@
 .history
 .svn/
 google-services.json
+firebase_options.dart
 
 # IntelliJ related
 *.iml
