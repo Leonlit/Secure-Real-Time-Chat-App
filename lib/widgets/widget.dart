@@ -7,6 +7,7 @@ import 'package:secure_real_time_chat_app/screens/chat_app/chatRoom.dart';
 import 'package:secure_real_time_chat_app/screens/users/profile.dart';
 import 'package:secure_real_time_chat_app/services/auth.dart';
 import 'package:secure_real_time_chat_app/services/database.dart';
+import 'package:secure_real_time_chat_app/services/fileUploader.dart';
 
 PreferredSizeWidget appBar (BuildContext context) {
     return AppBar(
@@ -35,7 +36,7 @@ Widget drawer (context) {
                     title: Text('File test', style: headerTextStyle(),),
                     onTap: () {
                         Navigator.pushReplacement(context, MaterialPageRoute(
-                            builder: (context) => FIleManagerTesting()
+                            builder: (context) => FileUploader("test123_test321")
                         ));
                     },
                 ),

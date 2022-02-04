@@ -25,4 +25,26 @@ class FileManagement {
   Future<bool> fileExists (String filePath) {
     return File(filePath).exists();
   }
+
+  Future<String?> getExternalDirPath () async{
+    Directory? dirPath = await getExternalStorageDirectory();
+    String? path = dirPath?.path;
+    return path;
+  }
+
+  Future<bool> dirExists(String dirPath) async{
+    return await Directory(dirPath).exists();
+  }
+
+  Future<bool> createDirIfNotExists (String dirPath) async{
+    if (await dirExists(dirPath)) {
+      return true;
+    }else {
+      Directory(dirPath).create()
+          .then((value) {
+        return true;
+      });
+    }
+    return false;
+  }
 }

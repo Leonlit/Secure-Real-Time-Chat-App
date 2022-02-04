@@ -68,6 +68,7 @@ class _ChatState extends State<Chat> {
       Map<String, dynamic> messageMap = {
         "message": message,
         "by": Constants.myName,
+        "file": false,
         'time': DateTime.now().millisecondsSinceEpoch,
       };
       databaseMethods.addConversationMessages(widget.chatRoomId, messageMap);

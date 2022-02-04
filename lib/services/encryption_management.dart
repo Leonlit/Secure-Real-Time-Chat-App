@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:encrypt/encrypt.dart';
@@ -47,6 +48,23 @@ class Encryption_Management {
     final encrypter = Encrypter(AES(aesKey));
     Encrypted encrypted = Encrypted.fromBase64(data);
     String decryptedData = encrypter.decrypt(encrypted, iv: IV.fromBase64(keyArr[1]));
+    return decryptedData;
+  }
+
+  static Encrypted encryptBytesWithAESKey (String key, Uint8List bin) {
+    dynamic keyArr = key.split(":");
+    Key aesKey = Key.fromBase64(keyArr[0]);
+    AES aes = AES(aesKey);
+    Encrypted encryptedData = aes.encrypt(bin, iv: IV.fromBase64(keyArr[1]));
+    return encryptedData;
+  }
+
+  static Uint8List decryptBytesWithAESKey (String key, Uint8List bin) {
+    dynamic keyArr = key.split(":");
+    Key aesKey = Key.fromBase64(keyArr[0]);
+    AES aes = AES(aesKey);
+    Encrypted dataBin = new Encrypted(bin);
+    Uint8List decryptedData = aes.decrypt(dataBin, iv: IV.fromBase64(keyArr[1]));
     return decryptedData;
   }
 
