@@ -1,9 +1,12 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:encrypt/encrypt.dart';
 import 'package:pointycastle/asymmetric/api.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:rsa_encrypt/rsa_encrypt.dart';
+import 'package:secure_real_time_chat_app/helper/constants.dart';
+import 'package:secure_real_time_chat_app/helper/helper.dart';
 import 'package:secure_real_time_chat_app/services/database.dart';
 import 'package:secure_real_time_chat_app/services/rsa_keys_management.dart';
 
@@ -62,5 +65,12 @@ class Encryption_Management {
     RSAKeyManagement keyManagement = new RSAKeyManagement();
     keyManagement.savePrivKey();
     databaseMethods.updateUserPublicKey(uid, keyManagement.getPubKey());
+  }
+
+  static getAESKeyFromDatabase (String chatroomID) async {
+    DatabaseMethods databaseMethods = new DatabaseMethods();
+    DocumentSnapshot snapshot = await databaseMethods.getChatRoomByID(chatroomID);
+    String privKey = await Encryption_Management.getPrivKeyFromStorage(await HelperFunctions.getUserUIDPreferences());
+    return Encryption_Management.decryptWithRSAPrivKey(privKey, snapshot.get(Constants.myName));
   }
 }

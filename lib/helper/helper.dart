@@ -35,6 +35,10 @@ class HelperFunctions {
     if (sharedPreferenceAESKeys != "") {
       String jsonString = prefs.getString(sharedPreferenceAESKeys)!;
       List<dynamic> oldKeysList = jsonDecode(jsonString);
+      int oldKeyIndex = oldKeysList.indexWhere((item) => item['chatRoomID'] == chatRoomID);
+      if (oldKeyIndex != -1) {
+        oldKeysList.removeAt(oldKeyIndex);
+      }
       oldKeysList.add({
         "chatRoomID": chatRoomID,
         "key": key

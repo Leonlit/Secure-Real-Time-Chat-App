@@ -73,13 +73,16 @@ class _ChatState extends State<Chat> {
   getChatHistory() async {
     this.aesKey = await HelperFunctions.getAESKeysForChatRoom(widget.chatRoomId);
     if (aesKey == "" || aesKey == null) {
-      DocumentSnapshot snapshot = await databaseMethods.getChatRoomByID(widget.chatRoomId);
-      String privKey = await Encryption_Management.getPrivKeyFromStorage(await HelperFunctions.getUserUIDPreferences());
-      this.aesKey = Encryption_Management.decryptWithRSAPrivKey(privKey, snapshot.get(Constants.myName));
+      this.aesKey = Encryption_Management.getAESKeyFromDatabase(widget.chatRoomId);
     }
+
     Stream<QuerySnapshot>? msgHistory = await databaseMethods
         .getConversationMessages(widget.chatRoomId);
     if (msgHistory != null) {
+      msgHistory.first.then((value) {
+        print("Test when getting chat history");
+        print(value.docs.first.id);
+      });
       setState(() {
         chatMessageStream = msgHistory;
       });
