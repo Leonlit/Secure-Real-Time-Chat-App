@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:secure_real_time_chat_app/helper/authenticate.dart';
 import 'package:secure_real_time_chat_app/helper/helper.dart';
+import 'package:secure_real_time_chat_app/helper/test.dart';
 import 'package:secure_real_time_chat_app/helper/theme.dart';
 import 'package:secure_real_time_chat_app/screens/chat_app/chatRoom.dart';
 import 'package:secure_real_time_chat_app/screens/users/profile.dart';
@@ -29,6 +30,14 @@ Widget drawer (context) {
                         color: THEME_COLOR,
                     ),
                     child: Text('Se-Chat', style: headerTextStyle(),),
+                ),
+                ListTile(
+                    title: Text('File test', style: headerTextStyle(),),
+                    onTap: () {
+                        Navigator.pushReplacement(context, MaterialPageRoute(
+                            builder: (context) => FIleManagerTesting()
+                        ));
+                    },
                 ),
                 ListTile(
                     title: Text('Home', style: headerTextStyle(),),

@@ -42,6 +42,7 @@ dependencies:
   rsa_encrypt: ^2.0.0
   path_provider: ^2.0.8
   permission_handler: ^8.3.0
+  file_picker: ^4.3.3
   rflutter_alert:
     git: git://github.com/RatelHub/rflutter_alert.git
   encrypt: ^5.0.1

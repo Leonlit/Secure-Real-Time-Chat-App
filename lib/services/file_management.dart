@@ -4,13 +4,13 @@ import 'dart:io';
 import 'package:permission_handler/permission_handler.dart';
 
 class FileManagement {
-  Future<String> get localPath async {
+  Future<String> localPath () async {
     final directory = await getApplicationDocumentsDirectory();
     return directory.path;
   }
 
   Future<File> localFile (String filename) async {
-    final path = await localPath;
+    final path = await localPath();
     var status = await Permission.storage.status;
     if (status.isDenied || status.isPermanentlyDenied) {
       Map<Permission, PermissionStatus> statuses = await [
