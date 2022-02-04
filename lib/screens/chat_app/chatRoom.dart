@@ -55,6 +55,7 @@ class _ChatRoomState extends State<ChatRoom> {
 
   getUserInfo() async{
     Constants.myName = await HelperFunctions.getUsernamePreferences();
+    Constants.myEmail = await HelperFunctions.getUserEmailPreferences();
     print(await HelperFunctions.getUserUIDPreferences());
     bool privKeyExists = await Encryption_Management.isPrivKeyIfExists(await HelperFunctions.getUserUIDPreferences());
     print(privKeyExists);
@@ -75,28 +76,11 @@ class _ChatRoomState extends State<ChatRoom> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: THEME_COLOR,
-        elevation: 0.0,
-        title: const Text("Se-Chat"),
-        actions: [
-          GestureDetector(
-            onTap: () {
-              authService.signOut();
-              HelperFunctions.saveUserLogggedInPreferences(false);
-              Navigator.pushReplacement(context, MaterialPageRoute(
-                builder: (context) => Authenticate()
-              ));
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: const Icon(Icons.exit_to_app),
-            ),
-          ),
-        ],
-      ),
+      drawer: drawer(context) ,
+      appBar: appBar(context),
       floatingActionButton: FloatingActionButton (
-        child: Icon(Icons.search),
+        backgroundColor: THEME_COLOR,
+        child: const Icon(Icons.search),
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(
               builder: (context) => SearchRoom()
