@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:flutter/material.dart";
 import 'package:pointycastle/asymmetric/api.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
@@ -31,7 +32,7 @@ class _SignUpState extends State<SignUp> {
 
   DatabaseMethods databaseMethods = new DatabaseMethods();
 
-  signUpUser () {
+  signUpUser (){
     if (formKey.currentState!.validate()) {
 
       HelperFunctions.saveUsernamePreferences(usernameEditingController.text);
@@ -43,7 +44,7 @@ class _SignUpState extends State<SignUp> {
 
       authService.signUpWithEmailAndPassword(
           emailEditingController.text,
-          passwordEditingController.text).then((val) {
+          passwordEditingController.text).then((val) async{
             if (val != null) {
               RSAKeyManagement keymanagement = new RSAKeyManagement();
 
@@ -52,9 +53,16 @@ class _SignUpState extends State<SignUp> {
                 "email": emailEditingController.text,
                 "pubKey": keymanagement.pubKey
               };
-              databaseMethods.uploadUserInfo(userInfoMap);
-              keymanagement.savePrivKey();
+              await databaseMethods.uploadUserInfo(userInfoMap);
+              await keymanagement.savePrivKey();
+              QuerySnapshot querySnapshot = await databaseMethods
+                  .getUserByUserEmail(emailEditingController.text);
+
+              HelperFunctions.saveUserEmailPreferences(querySnapshot.docs[0].get("email"));
+              HelperFunctions.saveUsernamePreferences(querySnapshot.docs[0].get("name"));
+              HelperFunctions.saveUserUIDPreferences(querySnapshot.docs[0].id);
               HelperFunctions.saveUserLogggedInPreferences(true);
+              print("user UID: ");
 
               Navigator.pushReplacement(context, MaterialPageRoute(
                   builder: (context) => ChatRoom()

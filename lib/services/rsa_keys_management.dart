@@ -45,7 +45,7 @@ class RSAKeyManagement {
   }
 
   savePrivKey() async {
-    StorePrivKeyToFile(this.privKey);
+    await StorePrivKeyToFile(this.privKey);
   }
 
   StorePrivKeyToFile(String privKey) async {
