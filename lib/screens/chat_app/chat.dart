@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:secure_real_time_chat_app/helper/constants.dart';
 import 'package:secure_real_time_chat_app/helper/helper.dart';
 import 'package:secure_real_time_chat_app/helper/theme.dart';
@@ -33,6 +34,14 @@ class _ChatState extends State<Chat> {
 
   Stream<QuerySnapshot>? chatMessageStream;
 
+  getAESKeyFromDB () async {
+    print("get chatroom aes key from database");
+    aesKey =
+        await Encryption_Management.getAESKeyFromDatabase(widget.chatRoomId);
+    await HelperFunctions.saveAESKeysForChatRoom(
+        widget.chatRoomId, aesKey);
+  }
+
   Widget chatMessageList() {
     print(MediaQuery.of(context).size.height -
         (MediaQuery.of(context).viewInsets.bottom ?? 0) -
@@ -48,8 +57,15 @@ class _ChatState extends State<Chat> {
                 children: snapshot.data!.docs.map((DocumentSnapshot document) {
                   print("test");
                   if (!document.get("file")) {
-                    String message = Encryption_Management.decryptWithAESKey(
-                        aesKey, document.get("message"));
+                    String message = "";
+                    try {
+                      message = Encryption_Management.decryptWithAESKey(
+                          aesKey, document.get("message"));
+                    }on ArgumentError {
+                      getAESKeyFromDB();
+                      message = Encryption_Management.decryptWithAESKey(
+                          aesKey, document.get("message"));
+                    }
                     print(message);
                     return MessageTile(
                       message: message,
@@ -291,6 +307,21 @@ class MessageTile extends StatelessWidget {
                       child: GestureDetector(
                         onTap: () {
                           downloadFile(this.fileReferences, this.message);
+                          Alert(
+                            context: context,
+                            type: AlertType.success,
+                            title: "Downloaded File $message",
+                            buttons: [
+                              DialogButton(
+                                child: Text(
+                                  "Ok",
+                                  style: TextStyle(color: Colors.white, fontSize: 20),
+                                ),
+                                onPressed: () => Navigator.pop(context),
+                                width: 120,
+                              )
+                            ],
+                          ).show();
                         },
                         child: Container(
                           child: const Icon(

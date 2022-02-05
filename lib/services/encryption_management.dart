@@ -1,8 +1,9 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:flutter/material.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:encrypt/encrypt.dart';
+import 'package:encrypt/encrypt.dart' as crypto;
 import 'package:pointycastle/asymmetric/api.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:rsa_encrypt/rsa_encrypt.dart';
@@ -36,35 +37,35 @@ class Encryption_Management {
 
   static encryptWithAESKey (String key, String data) {
     dynamic keyArr = key.split(":");
-    Key aesKey = Key.fromBase64(keyArr[0]);
-    final encrypter = Encrypter(AES(aesKey));
-    Encrypted encryptedData = encrypter.encrypt(data, iv: IV.fromBase64(keyArr[1]));
+    crypto.Key aesKey = crypto.Key.fromBase64(keyArr[0]);
+    final encrypter = crypto.Encrypter(crypto.AES(aesKey));
+    crypto.Encrypted encryptedData = encrypter.encrypt(data, iv: crypto.IV.fromBase64(keyArr[1]));
     return encryptedData.base64;
   }
 
   static decryptWithAESKey (String key, String data) {
     dynamic keyArr = key.split(":");
-    Key aesKey = Key.fromBase64(keyArr[0]);
-    final encrypter = Encrypter(AES(aesKey));
-    Encrypted encrypted = Encrypted.fromBase64(data);
-    String decryptedData = encrypter.decrypt(encrypted, iv: IV.fromBase64(keyArr[1]));
+    crypto.Key aesKey = crypto.Key.fromBase64(keyArr[0]);
+    final encrypter = crypto.Encrypter(crypto.AES(aesKey));
+    crypto.Encrypted encrypted = crypto.Encrypted.fromBase64(data);
+    String decryptedData = encrypter.decrypt(encrypted, iv: crypto.IV.fromBase64(keyArr[1]));
     return decryptedData;
   }
 
-  static Encrypted encryptBytesWithAESKey (String key, Uint8List bin) {
+  static crypto.Encrypted encryptBytesWithAESKey (String key, Uint8List bin) {
     dynamic keyArr = key.split(":");
-    Key aesKey = Key.fromBase64(keyArr[0]);
-    AES aes = AES(aesKey);
-    Encrypted encryptedData = aes.encrypt(bin, iv: IV.fromBase64(keyArr[1]));
+    crypto.Key aesKey = crypto.Key.fromBase64(keyArr[0]);
+    crypto.AES aes = crypto.AES(aesKey);
+    crypto.Encrypted encryptedData = aes.encrypt(bin, iv: crypto.IV.fromBase64(keyArr[1]));
     return encryptedData;
   }
 
   static Uint8List decryptBytesWithAESKey (String key, Uint8List bin) {
     dynamic keyArr = key.split(":");
-    Key aesKey = Key.fromBase64(keyArr[0]);
-    AES aes = AES(aesKey);
-    Encrypted dataBin = new Encrypted(bin);
-    Uint8List decryptedData = aes.decrypt(dataBin, iv: IV.fromBase64(keyArr[1]));
+    crypto.Key aesKey = crypto.Key.fromBase64(keyArr[0]);
+    crypto.AES aes = crypto.AES(aesKey);
+    crypto.Encrypted dataBin = new crypto.Encrypted(bin);
+    Uint8List decryptedData = aes.decrypt(dataBin, iv: crypto.IV.fromBase64(keyArr[1]));
     return decryptedData;
   }
 
@@ -75,7 +76,22 @@ class Encryption_Management {
   }
   static recreateRSAKeys(String uid, context) {
     DatabaseMethods databaseMethods = new DatabaseMethods();
-    Alert(context: context, title: "No private key file found!", desc: "Re-generating key pair as no private key for this user is found on this device ").show();
+    Alert(
+      context: context,
+      type: AlertType.warning,
+      title: "No private key file found!",
+      desc: "Re-generating key pair as no private key for this user is found on this device.",
+      buttons: [
+        DialogButton(
+          child: Text(
+            "Ok",
+            style: TextStyle(color: Colors.white, fontSize: 20),
+          ),
+          onPressed: () => Navigator.pop(context),
+          width: 120,
+        )
+      ],
+    ).show();
     print("Recreating priv key pem file\n\n");
     RSAKeyManagement keyManagement = new RSAKeyManagement();
     keyManagement.savePrivKey();

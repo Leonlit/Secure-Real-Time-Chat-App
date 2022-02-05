@@ -70,7 +70,22 @@ class _SignUpState extends State<SignUp> {
             }else {
               setState(() {
                 isLoading = false;
-                Alert(context: context, title: "Email already registered", desc: "There is already an account that's associated with that email in our database. Please try Again!").show();
+                Alert(
+                  context: context,
+                  type: AlertType.error,
+                  title: "Email already registered",
+                  desc: "There is already an account that's associated with that email in our database. Please try Again!",
+                  buttons: [
+                    DialogButton(
+                      child: Text(
+                        "Ok",
+                        style: TextStyle(color: Colors.white, fontSize: 20),
+                      ),
+                      onPressed: () => Navigator.pop(context),
+                      width: 120,
+                    )
+                  ],
+                ).show();
               });
             }
       });

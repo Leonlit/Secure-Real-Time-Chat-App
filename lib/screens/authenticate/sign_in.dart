@@ -55,7 +55,22 @@ class _SignInState extends State<SignIn> {
             }else {
               setState(() {
                 isLoading = false;
-                Alert(context: context, title: "Wrong login credentials", desc: "No account was found to have the credentials you entered. Please try again!").show();
+                Alert(
+                  context: context,
+                  type: AlertType.error,
+                  title: "Wrong login credentials",
+                  desc: "No account was found to have the credentials you entered. Please try again!",
+                  buttons: [
+                    DialogButton(
+                      child: Text(
+                        "Ok",
+                        style: TextStyle(color: Colors.white, fontSize: 20),
+                      ),
+                      onPressed: () => Navigator.pop(context),
+                      width: 120,
+                    )
+                  ],
+                ).show();
               });
             }
       });

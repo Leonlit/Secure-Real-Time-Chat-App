@@ -62,7 +62,21 @@ class _ChatRoomState extends State<ChatRoom> {
     if (!privKeyExists) {
       Encryption_Management.recreateRSAKeys(await HelperFunctions.getUserUIDPreferences(), context);
       await databaseMethods.deleteAllChatFromUser(Constants.myName);
-      Alert(context: context, title: "Deleting all old chatRoom").show();
+      Alert(
+        context: context,
+        type: AlertType.warning,
+        title: "Deleting all old chatRoom",
+        buttons: [
+          DialogButton(
+            child: Text(
+              "Ok",
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+            onPressed: () => Navigator.pop(context),
+            width: 120,
+          )
+        ],
+      ).show();
     }
 
     Stream<QuerySnapshot>? chatRooms = await databaseMethods.getChatRoom(Constants.myName);
