@@ -57,15 +57,8 @@ class _ChatState extends State<Chat> {
                 children: snapshot.data!.docs.map((DocumentSnapshot document) {
                   print("test");
                   if (!document.get("file")) {
-                    String message = "";
-                    try {
-                      message = Encryption_Management.decryptWithAESKey(
+                    String message = Encryption_Management.decryptWithAESKey(
                           aesKey, document.get("message"));
-                    }on ArgumentError {
-                      getAESKeyFromDB();
-                      message = Encryption_Management.decryptWithAESKey(
-                          aesKey, document.get("message"));
-                    }
                     print(message);
                     return MessageTile(
                       message: message,
@@ -130,14 +123,31 @@ class _ChatState extends State<Chat> {
           widget.chatRoomId, aesKey);
     }
 
-    Stream<QuerySnapshot>? msgHistory =
+    Stream<QuerySnapshot> msgHistory =
         await databaseMethods.getConversationMessages(widget.chatRoomId);
 
     print("Test when getting chat history");
 
-    setState(() {
-      chatMessageStream = msgHistory;
-    });
+    if (!((await msgHistory.isEmpty) || msgHistory != null)) {
+      QuerySnapshot test = await msgHistory.first;
+      try {
+        print(await test.size);
+        print(await test.docs.first.get("message"));
+        String message = await Encryption_Management.decryptWithAESKey(
+            aesKey, test.docs.first.get("message"));
+      }on ArgumentError {
+        await getAESKeyFromDB();
+      }
+      setState(() {
+        chatMessageStream = msgHistory;
+      });
+    }else {
+      await getAESKeyFromDB();
+      setState(() {
+        chatMessageStream = msgHistory;
+      });
+    }
+
   }
 
   @override
