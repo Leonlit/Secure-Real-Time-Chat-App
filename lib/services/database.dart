@@ -78,6 +78,17 @@ class DatabaseMethods {
     });
   }
 
+  storeFilesToFirebase (String chatRoomID, fileMap) {
+    FirebaseFirestore.instance
+        .collection("chatroom")
+        .doc(chatRoomID)
+        .collection("chat")
+        .add(fileMap)
+        .catchError((e) {
+      print(e);
+    });
+  }
+
   updateUserPublicKey(String uid, String pubKey) {
     FirebaseFirestore.instance
         .collection("users")

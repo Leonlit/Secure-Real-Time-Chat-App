@@ -33,14 +33,6 @@ Widget drawer (context) {
                     child: Text('Se-Chat', style: headerTextStyle(),),
                 ),
                 ListTile(
-                    title: Text('File test', style: headerTextStyle(),),
-                    onTap: () {
-                        Navigator.pushReplacement(context, MaterialPageRoute(
-                            builder: (context) => FileUploader("test123_test321")
-                        ));
-                    },
-                ),
-                ListTile(
                     title: Text('Home', style: headerTextStyle(),),
                     onTap: () {
                         Navigator.pushReplacement(context, MaterialPageRoute(

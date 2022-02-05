@@ -83,7 +83,7 @@ class _SearchRoomState extends State<SearchRoom> {
           "$myName": myEncryptedAES,
           "$username": hisEncryptedAES
         };
-        DatabaseMethods().createChatRoom(chatRoomID, chatRoomMap);
+        databaseMethods.createChatRoom(chatRoomID, chatRoomMap);
       }
       Navigator.push(context,
           MaterialPageRoute(builder: (context) => Chat(chatRoomID, username)));
