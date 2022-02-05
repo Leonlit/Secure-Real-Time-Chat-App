@@ -5,8 +5,17 @@ import 'package:permission_handler/permission_handler.dart';
 
 class FileManagement {
   Future<String> localPath () async {
-    final directory = await getApplicationDocumentsDirectory();
-    return directory.path;
+    Directory? dirPath = await getExternalStorageDirectory();
+    String path = dirPath!.path;
+    return path;
+  }
+
+  Future<String> tempPath () async {
+    Directory? dirPath = await getTemporaryDirectory();
+    print("test");
+    print(dirPath);
+    String path = dirPath!.path;
+    return path;
   }
 
   Future<File> localFile (String filename) async {
@@ -24,12 +33,6 @@ class FileManagement {
 
   Future<bool> fileExists (String filePath) {
     return File(filePath).exists();
-  }
-
-  Future<String?> getExternalDirPath () async{
-    Directory? dirPath = await getExternalStorageDirectory();
-    String? path = dirPath?.path;
-    return path;
   }
 
   Future<bool> dirExists(String dirPath) async{
