@@ -13,3 +13,7 @@ To Start using the app:
 6. Configure firebae_options.dart using flutterfire CLI
 7. Setup new device for the app (use old device is also workable)
 8. Build the application in the android emulator
+
+## Preview
+
+A demo video is available here: https://www.youtube.com/watch?v=9J0LU-Y_5v0&t=235s
